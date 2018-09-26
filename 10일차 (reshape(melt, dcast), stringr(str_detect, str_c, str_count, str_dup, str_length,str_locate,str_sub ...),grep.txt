@@ -1,0 +1,453 @@
+# reshape2 
+
+install.packages("reshape2")
+library(reshape2)
+
+# melt() : 컬럼이 많은 형태(wide)를 세로 방향 긴(long) 형태로 변경
+
+> melt(fru,id='year')
+
+   year variable  value
+1  2014     name  apple
+2  2014     name banana
+3  2014     name orange
+4  2014     name  berry
+5  2015     name  apple
+6  2015     name banana
+7  2015     name orange
+8  2015     name  berry
+9  2016     name  apple
+10 2016     name banana
+11 2016     name orange
+12 2016     name  berry
+13 2017     name  apple
+14 2017     name banana
+15 2017     name orange
+16 2017     name  berry
+17 2014      qty      6
+18 2014      qty      2
+19 2014      qty      7
+20 2014      qty      9
+21 2015      qty     10
+22 2015      qty      7
+23 2015      qty      3
+24 2015      qty     15
+25 2016      qty     13
+26 2016      qty     10
+27 2016      qty      5
+28 2016      qty     11
+29 2017      qty     15
+30 2017      qty     12
+31 2017      qty      6
+32 2017      qty     17
+33 2014    price  16000
+34 2014    price  10000
+35 2014    price  35000
+36 2014    price   9000
+37 2015    price  10000
+38 2015    price  25000
+39 2015    price  15000
+40 2015    price  35000
+41 2016    price  23000
+42 2016    price   5000
+43 2016    price   2500
+44 2016    price   1100
+45 2017    price  17000
+46 2017    price  30000
+47 2017    price  30500
+48 2017    price  50000
+
+melt(fru,id='name')
+
+     name variable value
+1   apple     year  2014
+2  banana     year  2014
+3  orange     year  2014
+4   berry     year  2014
+5   apple     year  2015
+6  banana     year  2015
+7  orange     year  2015
+8   berry     year  2015
+9   apple     year  2016
+10 banana     year  2016
+11 orange     year  2016
+12  berry     year  2016
+13  apple     year  2017
+14 banana     year  2017
+15 orange     year  2017
+16  berry     year  2017
+17  apple      qty     6
+18 banana      qty     2
+19 orange      qty     7
+20  berry      qty     9
+21  apple      qty    10
+22 banana      qty     7
+23 orange      qty     3
+24  berry      qty    15
+25  apple      qty    13
+26 banana      qty    10
+27 orange      qty     5
+28  berry      qty    11
+29  apple      qty    15
+30 banana      qty    12
+31 orange      qty     6
+32  berry      qty    17
+33  apple    price 16000
+34 banana    price 10000
+35 orange    price 35000
+36  berry    price  9000
+37  apple    price 10000
+38 banana    price 25000
+39 orange    price 15000
+40  berry    price 35000
+41  apple    price 23000
+42 banana    price  5000
+43 orange    price  2500
+44  berry    price  1100
+45  apple    price 17000
+46 banana    price 30000
+47 orange    price 30500
+48  berry    price 50000
+
+m<-melt(fru,id=c('year','name')) -- 열값이 데이터로 들어간다.
+
+   year   name variable value
+1  2014  apple      qty     6
+2  2014 banana      qty     2
+3  2014 orange      qty     7
+4  2014  berry      qty     9
+5  2015  apple      qty    10
+6  2015 banana      qty     7
+7  2015 orange      qty     3
+8  2015  berry      qty    15
+9  2016  apple      qty    13
+10 2016 banana      qty    10
+11 2016 orange      qty     5
+12 2016  berry      qty    11
+13 2017  apple      qty    15
+14 2017 banana      qty    12
+15 2017 orange      qty     6
+16 2017  berry      qty    17
+17 2014  apple    price 16000
+18 2014 banana    price 10000
+19 2014 orange    price 35000
+20 2014  berry    price  9000
+21 2015  apple    price 10000
+22 2015 banana    price 25000
+23 2015 orange    price 15000
+24 2015  berry    price 35000
+25 2016  apple    price 23000
+26 2016 banana    price  5000
+27 2016 orange    price  2500
+28 2016  berry    price  1100
+29 2017  apple    price 17000
+30 2017 banana    price 30000
+31 2017 orange    price 30500
+32 2017  berry    price 50000
+
+# dcast() : long(세로)을 wide(가로) 형태로 변경
+
+dcast(m,year+name~variable) dcast(테이블이름,기준컬럼~컬럼으로 바꿔줄 값) / 오름차순 정렬이 된다.
+
+   year   name qty price
+1  2014  apple   6 16000
+2  2014 banana   2 10000
+3  2014  berry   9  9000
+4  2014 orange   7 35000
+5  2015  apple  10 10000
+6  2015 banana   7 25000
+7  2015  berry  15 35000
+8  2015 orange   3 15000
+9  2016  apple  13 23000
+10 2016 banana  10  5000
+11 2016  berry  11  1100
+12 2016 orange   5  2500
+13 2017  apple  15 17000
+14 2017 banana  12 30000
+15 2017  berry  17 50000
+16 2017 orange   6 30500
+
+> dcast(m,name~variable,sum)
+
+    name qty price
+1  apple  44 66000
+2 banana  31 70000
+3  berry  52 95100
+4 orange  21 83000
+
+> dcast(m,year~variable,sum)
+  year qty  price
+1 2014  24  70000
+2 2015  35  85000
+3 2016  39  31600
+4 2017  50 127500
+
+# grep: 동일한 문자열을 문자열 벡터에서 찾아서 인덱스 번호를 리턴하는 함수
+
+text<-c('a','ab','acb','accb','accccb')
+grep('a',text) 
+grep('ab',text)
+[1] 2
+grep('acb',text)
+grep('c',text,value=TRUE) -- value 라는 옵션은 값으로 보게 해준다.
+[1] "acb"    "accb"   "accccb"
+
+# 문자 패턴 연산자
+
+grep('ac*b',text,value=TRUE) 
+[1] "ab"     "acb"    "accb"   "accccb"
+
+문자* : 문자가 나와도 되고 안나와도 된다. // 적어도 0번이상 매칭하면 찾는다. <앞>*
+
+grep('ac+b',text,value=TRUE)
+[1] "acb"    "accb"   "accccb"
+
+문자+ : 문자가 반드시 나와야한다. // 1글자 이상나와야 값이 나온다. <앞>+
+
+grep('ac?b',text,value=TRUE)
+[1] "ab"  "acb"
+
+문자? :? 앞 문자가 1이하로만 나오게 한다. // 0번 또는 1번 매칭하면 찾는다.
+  
+grep('ac{2}b',text,value=TRUE)  
+[1] "accb"
+
+문자{n} : 문자 n개 로만 구성되있는 텍스트만 찾는다. // n번 매칭하면 찾는다.
+
+grep('ac{2,}b',text,value=TRUE)  
+[1] "accb"   "accccb"
+
+문자{n,} : 문자 n개 이상 구성되어있는 텍스트만 찾는다. //  n번이상 매칭하면 찾는다.
+
+> grep('ac{2,4}b',text,value=TRUE)  
+[1] "accb"   "accccb"
+
+문자{n,m} : {n,m} 앞문자가 n개이상 m개이하 매칭하면 찾는다.
+
+text <- c('abcd','cdab','cabd','c abd')
+
+grep('^ab',text,value=TRUE)
+[1] "abcd"
+
+^ : 시작되는 문자
+
+grep('ab$',text,value=TRUE) 
+[1] "cdab"
+
+$ : 끝나는 문자
+
+grep('\\bab',text,value=TRUE)
+[1] "abcd"  "c abd"
+
+\\b문자 : 공백문자 뒤에 문자를 찾거나 문자로 아예 시작하는 값을 찾는다. // 문자로 시작되는 문자를 찾는데 빈문자열 뒤에 시작되는 문자도 찾는다.
+
+text<-c('^ab','ab','abc','abd','abe','ab 12')
+
+> grep('ab',text,value=TRUE)
+[1] "^ab"   "ab"    "abc"   "abd"   "abe"   "ab 12"
+
+grep('ab.',text,value=TRUE)
+[1] "abc"   "abd"   "abe"   "ab 12"
+
+. : 어떤문자 하나 매칭 <정규식 표현식> 
+
+grep('ab[c,e]',text,value=TRUE)
+[1] "abc" "abe"
+
+[..] : [..]안에 있는 문자를 매칭 한다. (여기선 '또는'으로 매칭된다.)
+
+grep('ab[c-e]',text,value=TRUE)
+[1] "abc" "abd" "abe"
+
+[n-m] : n부터 m까지 문자를 매칭한다.
+
+grep('ab[^c]',text,value=TRUE)
+[1] "abd"   "abe"   "ab 12"
+
+[^문자] : NOT을 의미한다.
+
+grep('\\^',text,value=TRUE)
+[1] "^ab"
+
+\\^ : ^시작글자를 찾는다. 즉, \\특수문자를하면 앞에 특수문자가 있는 값을 찾을 수 있다.
+
+text[7]<-'$ab'
+
+grep('\\$',text,value=TRUE)
+
+text <- c('sql','SQL','Sql100','PLSQL','plsql','R','r','r0','python','PYTHON','pyth0n','python#')
+
+grep('[0-9]',text,value=T)
+[1] "Sql100" "r0"     "pyth0n" 
+grep('[[:digit:]]',text,value=T)
+[1] "Sql100" "r0"     "pyth0n"
+
+[[:digit:]] : 문자안에 숫자있는 것을 찾는다.
+
+grep('[[:upper:]]',text,value=T)
+[1] "SQL"    "Sql100" "PLSQL"  "R"      "PYTHON"
+
+[[:upper:]] : 대문자
+
+grep('[[:lower:]]',text,value=T)
+[1] "sql"     "Sql100"  "plsql"   "r"       "r0"      "python"  "pyth0n"  "python#"
+
+[[:lower:]] : 소문자
+
+text[13]<-100
+
+grep('[[:alpha:]]',text,value=T)
+ [1] "sql"     "SQL"     "Sql100"  "PLSQL"   "plsql"   "R"       "r"      
+ [8] "r0"      "python"  "PYTHON"  "pyth0n"  "python#"
+
+[[:alpha:]] : 문자로만 되있는 것들만 추출
+
+grep('[[:alnum:]]',text,value=T)
+ [1] "sql"     "SQL"     "Sql100"  "PLSQL"   "plsql"   "R"       "r"      
+ [8] "r0"      "python"  "PYTHON"  "pyth0n"  "python#" "100"   
+
+[[:alnum:]] : 문자,숫자 모두 추출 
+
+grep('[[:punct:]]',text,value=T)
+[1] "python#"
+
+[[:punct:]] : 문자에 특수문자가 있는 값들 추출
+
+text <- c('sql','SQL','Sql100','PLSQL','plsql','R','r','r0','python','PYTHON','pyth0n','python#',100,'*','$','^','*100')
+
+grep('[[:punct:]]',text,value=T)
+[1] "python#" "*"       "$"       "^" 
+
+## 순수하게 특수문자만 있는 것을 찾는 방법 : gregexpr("[특수문자]",테이블이름) 
+
+gregexpr("[*|$|^]",text) -- 하나하나 특수문자를 비교한다.
+gregexpr("[*|$|^]",text)==1 -- 이 문자가 있는곳에 TRUE 가  나타난다.
+text[gregexpr("[*|$|^]",text)==1] -- 1이면 앞에서 선언한 특수문자 값 찾기
+text[gregexpr("[*|$|^]",text)==-1] -- -1이면 아닌값 찾기
+which(gregexpr("[*|$|^]",text)==1) 
+x<-text[gregexpr("[*|$|^]",text)==1]
+setdiff(x,grep('[[:digit:]]',x,value=T)) -- *100 인 경우는 특수문자만 뽑는거에도 뽑히기 때문에 없애는 방법은 빼서 없앤다.
+
+grep('[[:digit:]]',x,value=T) - 숫자에 문자가 있는 경우 
+
+# 두개를 다 뽑고 싶은 경우 : | 을 사용한다.
+
+grep('Steven',emp$FIRST_NAME,value=T)
+[1] "Steven" "Steven"
+
+grep('Stephen',emp$FIRST_NAME,value=T)
+[1] "Stephen"
+
+grep('Steven|Stephen',emp$FIRST_NAME,value=T)
+
+emp[gregexpr('Ste(v|ph)en',emp$FIRST_NAME)==1,'FIRST_NAME']
+
+x<-c('Steven','Stephen')
+grep(paste(x,collapse='|'),emp$FIRST_NAME,value=T)
+
+library(stringr)
+text
+
+# str_detect : 문자를 찾는 함수 // 특정문자가 있는지를 검사해서 TRUE/FALSE 를 출력하는 함수 == substr, grep
+
+str_detect(text,'SQL') -- TRUE/FALSE 위치를 보여준다. // 대문자 SQL찾기
+which(str_detect(text,'SQL'))
+text[str_detect(text,'SQL')]
+[1] "SQL"   "PLSQL"
+text[str_detect(text,'^s')] -- 소문자 s로 시작되는 단어 찾기
+text[str_detect(text,'$n')] -- 소문자 n으로 끝나는 단어 찾기
+text[str_detect(text,'^[sS]')] -- 대문자 S든 소문자 s로 시작하는 단어 찾기
+text[str_detect(text,'[qQ]')] -- 대문자 Q든 소문자 q가 들어가있는 단어 찾기
+text[str_detect(text,ignore.case('s'))] -- 대소문자 구분없이 찾기 (R 3.4.1에 있음) -> 3.5.1에는 없다(?)
+text[str_detect(text,'[*]')] -- 특수문자는 대괄호로 묶는다.
+
+text<-c('sqls','ssqls')
+
+str_count : 문자의 갯수를 알려주는 함수, 특정 문자 패턴을 찾을 때 유용하다. // 주어진 단어에서 해당글자가 몇번 나오는지 알려주는 함수 == NROW, length
+str_count(text,'s')
+[1] 2 3
+str_count(text,'[sS]')
+[1] 2 3
+str_count(text,'S')
+[1] 0 0
+
+# str_c() : 문자열 합쳐서 출력하는 함수  === paste 
+
+str_c('R','빅데이터분석')
+grep(str_c('Steven','|Stephen'),emp$FIRST_NAME,value=T)
+
+text<-'R'
+str_c('프로그램언어: ',text)
+str_c(text,' 은 데이터 분석 하기 위해 좋은 언어는',text,'이다.')
+str_c('R','빅데이터분석',collapse=',') -- 오류는 뜨지 않으나 collapse 옵션이 먹히지 않는다
+[1] "R빅데이터분석"
+
+text<-c('R','빅데이터분석') -- 해결방법은 벡터형으로해서 해결하면 된다.
+str_c(text,collapse=',')
+[1] "R,빅데이터분석"
+
+# str_dup() : 주어진 문자열을 주어진 횟수만큼 반복해서 출력하는 함수 == rep
+
+str_dup('파도 소리 듣고 싶다',10)
+[1] "파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다파도 소리 듣고 싶다"
+
+# str_length() : 주어진 문자열의 길이를 출력하는 함수 == nchar
+
+str_length('해운대가고싶다.') -- .도 글자로 친다. 
+
+# str_locate() : 주어진 문자열에서 특정 문자가 처음으로 나오는 위치 == sub, gsub 응용 하면 가능
+
+str_locate('january','a')
+     start end
+[1,]     2   2
+
+str_locate_all('january','a') -- 처음과 끝을 알 수 있다.
+     start end
+[1,]     2   2
+[2,]     5   5
+
+str_locate_all('janauaraya','a')
+
+> str_locate_all('janauaraya','a')
+
+[[1]]
+     start end
+[1,]     2   2
+[2,]     4   4
+[3,]     6   6
+[4,]     8   8
+[5,]    10  10
+
+# str_replace() : 주어진 문자열에서 변경전 문자를 변경후 문자로 바꾸는 함수 == sub, gsub
+
+str_replace('빅데이터분석','빅데이터','가치')
+
+str_replace('banana','a','*') -- 첫번째 글자만 바뀐다.
+
+str_replace_all('banana','a','*')
+
+# str_split() : 주어진 데이터셋에서 지정된 기호를 기준으로 분리하는 함수 == strsplit
+
+str<-str_c('sql','/','plsql','/','r')
+
+str
+[1] "sql/plsql/r"
+
+str_split(str,'/')
+[1] "sql"   "plsql" "r"  
+
+# str_sub() ; 주어진 문자열에서 지정된 길이 만큼의 문자를 잘라내는 함수  == substr
+
+str_sub('행복하게 살자',start=1,end=2)
+[1] "행복"
+
+str_sub('행복하게 살자',start=-2) -- end를 표현하지 않으면 start부터 끝까지 값이 나온다.
+[1] "살자"
+
+str_sub('행복하게 살자'start=1)
+[1] "행복하게 살자"
+
+# str_trim : 공백 문자를 지우는 방법 // 접두,접미 부분에 공백문자를 제거하는 함수
+str_trim('  R  ')
+[1] "R"
+

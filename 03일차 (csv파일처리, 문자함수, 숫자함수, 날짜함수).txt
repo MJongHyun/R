@@ -1,0 +1,940 @@
+R 데이터 자료형
+
+1. vector     : 같은 데이터 type을 가지는 1차원 배열
+2. list       : 서로 다른 데이터 type을 가지는 1차원 배열, 중첩이 가능하다.
+3. matrix     : 같은 데이터 type을 가지는 2차원 배열
+4. array      : 같은 데이터 type을 가지는 3차원 배열
+5. factor     : 목록, 범주형 데이터
+6. data.frame : 서로 다른 데이터 type을 가지는 컬럼으로 이루어진 2차원 배열
+7. table      : data.frame과 동일한 구조를 가지는데 속도가 빠르다.
+
+a<-c(1,2)
+b<-list(c('king',100))
+c<-matrix(c(1,2))
+d<-array(1:12,dim=c(2,2,3))
+e<-factor(c('male','female'))
+f<-data.frame(x=c(1,2))
+
+> class(a)
+[1] "numeric"
+> class(b)
+[1] "list"
+> class(c)
+[1] "matrix"
+> class(d)
+[1] "array"
+> class(e)
+[1] "factor"
+> class(f)
+[1] "data.frame"
+
+> mode(a)
+[1] "numeric"
+> mode(b)
+[1] "list"
+> mode(c)
+[1] "numeric"
+> mode(d)
+[1] "numeric"
+> mode(e)
+[1] "numeric"
+> mode(f)
+[1] "list"
+
+> str(a)
+ num [1:2] 1 2
+> str(b)
+List of 1
+ $ : chr [1:2] "king" "100"
+> str(c)
+ num [1:2, 1] 1 2
+> str(d)
+ int [1:2, 1:2, 1:3] 1 2 3 4 5 6 7 8 9 10 ...
+> str(e)
+ Factor w/ 2 levels "female","male": 2 1
+> str(f)
+'data.frame':	2 obs. of  1 variable:
+ $ x: num  1 2
+
+is.numeric(a)
+is.character(a)
+is.integer(a)
+
+is.vector(a)
+is.list(b)
+is.matrix(c)
+is.array(d)
+is.factor(e)
+is.data.frame(f)
+
+형변환
+as.numeric
+as.factor
+
+# csv 파일 처리하는 방법 (읽어오는 방법)
+
+read.csv
+- csv파일을 데이터프레임으로 읽어들이는 함수
+
+getwd(): default 한 곳
+> getwd()
+[1] "C:/Users/stu/Documents"
+
+- 경로등록 (디렉토리 등록)
+
+setwd("c:/data")
+
+> getwd() -- 바뀐 것을 확인할 수 있다.
+[1] "c:/data"
+
+emp<-read.csv("emp.csv") -- 파일 읽어오기
+
+> str(emp) -- 문제점: last_name과 first_name에 level이 있다면 이름에 order가 있는거기 때문에 좋지 않다.
+'data.frame':	107 obs. of  11 variables:
+ $ EMPLOYEE_ID   : int  198 199 200 201 202 203 204 205 206 100 ...
+ $ FIRST_NAME    : Factor w/ 91 levels "Adam","Alana",..: 21 22 39 59 66 83 31 76 90 80 ...
+ $ LAST_NAME     : Factor w/ 102 levels "Abel","Ande",..: 69 37 101 41 28 63 5 42 36 50 ...
+ $ EMAIL         : Factor w/ 107 levels "ABANDA","ABULL",..: 24 20 52 67 77 93 32 89 105 90 ...
+ $ PHONE_NUMBER  : Factor w/ 107 levels "011.44.1343.329268",..: 98 99 36 40 62 41 44 42 43 37 ...
+ $ HIRE_DATE     : int  20070621 20080113 20030917 20040217 20050817 20020607 20020607 20020607 20020607 20030617 ...
+ $ JOB_ID        : Factor w/ 19 levels "AC_ACCOUNT","AC_MGR",..: 17 17 3 10 11 8 12 2 1 4 ...
+ $ SALARY        : int  2600 2600 4400 13000 6000 6500 10000 12008 8300 29040 ...
+ $ COMMISSION_PCT: num  NA NA NA NA NA NA NA NA NA NA ...
+ $ MANAGER_ID    : int  124 124 101 100 201 101 101 101 205 NA ...
+ $ DEPARTMENT_ID : int  50 50 10 20 20 40 70 110 110 90 ...
+
+emp<-read.csv("emp.csv",header=FALSE)
+
+> str(emp) - 모두 factor로 바뀐다. 모두 실제값으로 적용한다. 만약 컬럼이름이 있다면 header를 TRUE로 놔야한다.
+'data.frame':	108 obs. of  11 variables:
+ $ V1 : Factor w/ 108 levels "100","101","102",..: 108 99 100 101 102 103 104 105 106 107 ...
+ $ V2 : Factor w/ 92 levels "Adam","Alana",..: 26 21 22 40 60 67 84 32 77 91 ...
+ $ V3 : Factor w/ 103 levels "Abel","Ande",..: 55 70 37 102 41 28 64 5 42 36 ...
+ $ V4 : Factor w/ 108 levels "ABANDA","ABULL",..: 28 24 20 53 68 78 94 33 90 106 ...
+ $ V5 : Factor w/ 108 levels "011.44.1343.329268",..: 108 98 99 36 40 62 41 44 42 43 ...
+ $ V6 : Factor w/ 99 levels "20010113","20020607",..: 99 81 90 10 15 38 2 2 2 2 ...
+ $ V7 : Factor w/ 20 levels "AC_ACCOUNT","AC_MGR",..: 10 18 18 3 11 12 8 13 2 1 ...
+ $ V8 : Factor w/ 59 levels "10000","10500",..: 59 15 15 32 7 35 39 1 6 52 ...
+ $ V9 : Factor w/ 9 levels "","0.1","0.15",..: 9 1 1 1 1 1 1 1 1 1 ...
+ $ V10: Factor w/ 20 levels "","100","101",..: 20 12 12 3 2 18 3 3 3 19 ...
+ $ V11: Factor w/ 13 levels "","10","100",..: 13 8 8 2 5 5 7 10 4 4 ...
+
+emp<-read.csv("emp.csv",header=T,stringsAsFactors=FALSE)
+
+'data.frame':	107 obs. of  11 variables:
+ $ EMPLOYEE_ID   : int  198 199 200 201 202 203 204 205 206 100 ...
+ $ FIRST_NAME    : chr  "Donald" "Douglas" "Jennifer" "Michael" ...
+ $ LAST_NAME     : chr  "OConnell" "Grant" "Whalen" "Hartstein" ...
+ $ EMAIL         : chr  "DOCONNEL" "DGRANT" "JWHALEN" "MHARTSTE" ...
+ $ PHONE_NUMBER  : chr  "650.507.9833" "650.507.9844" "515.123.4444" "515.123.5555" ...
+ $ HIRE_DATE     : int  20070621 20080113 20030917 20040217 20050817 20020607 20020607 20020607 20020607 20030617 ...
+ $ JOB_ID        : chr  "SH_CLERK" "SH_CLERK" "AD_ASST" "MK_MAN" ...
+ $ SALARY        : int  2600 2600 4400 13000 6000 6500 10000 12008 8300 29040 ...
+ $ COMMISSION_PCT: num  NA NA NA NA NA NA NA NA NA NA ...
+ $ MANAGER_ID    : int  124 124 101 100 201 101 101 101 205 NA ...
+ $ DEPARTMENT_ID : int  50 50 10 20 20 40 70 110 110 90 ...
+
+emp
+    EMPLOYEE_ID  FIRST_NAME   LAST_NAME    EMAIL
+1           198      Donald    OConnell DOCONNEL
+2           199     Douglas       Grant   DGRANT
+3           200    Jennifer      Whalen  JWHALEN
+4           201     Michael   Hartstein MHARTSTE
+5           202         Pat         Fay     PFAY
+6           203       Susan      Mavris  SMAVRIS
+7           204     Hermann        Baer    HBAER
+8           205     Shelley     Higgins SHIGGINS
+9           206     William       Gietz   WGIETZ
+10          100      Steven        King    SKING
+11          101       Neena     Kochhar NKOCHHAR
+12          102         Lex     De Haan  LDEHAAN
+13          103   Alexander      Hunold  AHUNOLD
+14          104       Bruce       Ernst   BERNST
+15          105       David      Austin  DAUSTIN
+16          106       Valli   Pataballa VPATABAL
+17          107       Diana     Lorentz DLORENTZ
+18          108       Nancy   Greenberg NGREENBE
+19          109      Daniel      Faviet  DFAVIET
+20          110        John        Chen    JCHEN
+21          111      Ismael     Sciarra ISCIARRA
+22          112 Jose Manuel       Urman  JMURMAN
+23          113        Luis        Popp    LPOPP
+24          114         Den    Raphaely DRAPHEAL
+25          115   Alexander        Khoo    AKHOO
+26          116      Shelli       Baida   SBAIDA
+27          117       Sigal      Tobias  STOBIAS
+28          118         Guy      Himuro  GHIMURO
+29          119       Karen  Colmenares KCOLMENA
+30          120     Matthew       Weiss   MWEISS
+31          121        Adam       Fripp   AFRIPP
+32          122       Payam    Kaufling PKAUFLIN
+33          123      Shanta     Vollman SVOLLMAN
+34          124       Kevin     Mourgos KMOURGOS
+35          125       Julia       Nayer   JNAYER
+36          126       Irene Mikkilineni IMIKKILI
+37          127       James      Landry  JLANDRY
+38          128      Steven      Markle  SMARKLE
+39          129       Laura      Bissot  LBISSOT
+40          130       Mozhe    Atkinson MATKINSO
+41          131       James      Marlow  JAMRLOW
+42          132          TJ       Olson  TJOLSON
+43          133       Jason      Mallin  JMALLIN
+44          134     Michael      Rogers  MROGERS
+45          135          Ki         Gee     KGEE
+46          136       Hazel  Philtanker HPHILTAN
+47          137      Renske      Ladwig  RLADWIG
+48          138     Stephen      Stiles  SSTILES
+49          139        John         Seo     JSEO
+50          140      Joshua       Patel   JPATEL
+51          141      Trenna        Rajs    TRAJS
+52          142      Curtis      Davies  CDAVIES
+53          143     Randall       Matos   RMATOS
+54          144       Peter      Vargas  PVARGAS
+55          145        John     Russell  JRUSSEL
+56          146       Karen    Partners KPARTNER
+57          147     Alberto   Errazuriz AERRAZUR
+58          148      Gerald   Cambrault GCAMBRAU
+59          149       Eleni     Zlotkey EZLOTKEY
+60          150       Peter      Tucker  PTUCKER
+61          151       David   Bernstein DBERNSTE
+62          152       Peter        Hall    PHALL
+63          153 Christopher       Olsen   COLSEN
+64          154     Nanette   Cambrault NCAMBRAU
+65          155      Oliver     Tuvault OTUVAULT
+66          156     Janette        King    JKING
+67          157     Patrick       Sully   PSULLY
+68          158       Allan      McEwen  AMCEWEN
+69          159     Lindsey       Smith   LSMITH
+70          160      Louise       Doran   LDORAN
+71          161      Sarath      Sewall  SSEWALL
+72          162       Clara     Vishney CVISHNEY
+73          163    Danielle      Greene  DGREENE
+74          164      Mattea     Marvins MMARVINS
+75          165       David         Lee     DLEE
+76          166      Sundar        Ande    SANDE
+77          167        Amit       Banda   ABANDA
+78          168        Lisa        Ozer    LOZER
+79          169    Harrison       Bloom   HBLOOM
+80          170      Tayler         Fox     TFOX
+81          171     William       Smith   WSMITH
+82          172   Elizabeth       Bates   EBATES
+83          173     Sundita       Kumar   SKUMAR
+84          174       Ellen        Abel    EABEL
+85          175      Alyssa      Hutton  AHUTTON
+86          176    Jonathon      Taylor  JTAYLOR
+87          177        Jack  Livingston JLIVINGS
+88          178   Kimberely       Grant   KGRANT
+89          179     Charles     Johnson CJOHNSON
+90          180     Winston      Taylor  WTAYLOR
+          PHONE_NUMBER HIRE_DATE     JOB_ID SALARY
+1         650.507.9833  20070621   SH_CLERK   2600
+2         650.507.9844  20080113   SH_CLERK   2600
+3         515.123.4444  20030917    AD_ASST   4400
+4         515.123.5555  20040217     MK_MAN  13000
+5         603.123.6666  20050817     MK_REP   6000
+6         515.123.7777  20020607     HR_REP   6500
+7         515.123.8888  20020607     PR_REP  10000
+8         515.123.8080  20020607     AC_MGR  12008
+9         515.123.8181  20020607 AC_ACCOUNT   8300
+10        515.123.4567  20030617    AD_PRES  29040
+11        515.123.4568  20050921      AD_VP  17000
+12        515.123.4569  20010113      AD_VP  17000
+13        590.423.4567  20060103    IT_PROG   9000
+14        590.423.4568  20070521    IT_PROG   6000
+15        590.423.4569  20050625    IT_PROG   4800
+16        590.423.4560  20060205    IT_PROG   4800
+17        590.423.5567  20070207    IT_PROG   4200
+18        515.124.4569  20020817     FI_MGR  12008
+19        515.124.4169  20020816 FI_ACCOUNT   9000
+20        515.124.4269  20050928 FI_ACCOUNT   8200
+21        515.124.4369  20050930 FI_ACCOUNT   7700
+22        515.124.4469  20060307 FI_ACCOUNT   7800
+23        515.124.4567  20071207 FI_ACCOUNT   6900
+24        515.127.4561  20021207     PU_MAN  11000
+25        515.127.4562  20030518   PU_CLERK   3100
+26        515.127.4563  20051224   PU_CLERK   2900
+27        515.127.4564  20050724   PU_CLERK   2800
+28        515.127.4565  20061115   PU_CLERK   2600
+29        515.127.4566  20070810   PU_CLERK   2500
+30        650.123.1234  20040718     ST_MAN   8000
+31        650.123.2234  20050410     ST_MAN   8200
+32        650.123.3234  20030501     ST_MAN   7900
+33        650.123.4234  20051010     ST_MAN   6500
+34        650.123.5234  20071116     ST_MAN   5800
+35        650.124.1214  20050716   ST_CLERK   3200
+36        650.124.1224  20060928   ST_CLERK   2700
+37        650.124.1334  20070114   ST_CLERK   2400
+38        650.124.1434  20080308   ST_CLERK   2200
+39        650.124.5234  20050820   ST_CLERK   3300
+40        650.124.6234  20051030   ST_CLERK   2800
+41        650.124.7234  20050216   ST_CLERK   2500
+42        650.124.8234  20070410   ST_CLERK   2100
+43        650.127.1934  20040614   ST_CLERK   3300
+44        650.127.1834  20060826   ST_CLERK   2900
+45        650.127.1734  20071212   ST_CLERK   2400
+46        650.127.1634  20080206   ST_CLERK   2200
+47        650.121.1234  20030714   ST_CLERK   3600
+48        650.121.2034  20051026   ST_CLERK   3200
+49        650.121.2019  20060212   ST_CLERK   2700
+50        650.121.1834  20060406   ST_CLERK   2500
+51        650.121.8009  20031017   ST_CLERK   3500
+52        650.121.2994  20050129   ST_CLERK   3100
+53        650.121.2874  20060315   ST_CLERK   2600
+54        650.121.2004  20060709   ST_CLERK   2500
+55  011.44.1344.429268  20041001     SA_MAN  14000
+56  011.44.1344.467268  20050105     SA_MAN  13500
+57  011.44.1344.429278  20050310     SA_MAN  12000
+58  011.44.1344.619268  20071015     SA_MAN  11000
+59  011.44.1344.429018  20080129     SA_MAN  10500
+60  011.44.1344.129268  20050130     SA_REP  10000
+61  011.44.1344.345268  20050324     SA_REP   9500
+62  011.44.1344.478968  20050820     SA_REP   9000
+63  011.44.1344.498718  20060330     SA_REP   8000
+64  011.44.1344.987668  20061209     SA_REP   7500
+65  011.44.1344.486508  20071123     SA_REP   7000
+66  011.44.1345.429268  20040130     SA_REP  10000
+67  011.44.1345.929268  20040304     SA_REP   9500
+68  011.44.1345.829268  20040801     SA_REP   9000
+69  011.44.1345.729268  20050310     SA_REP   8000
+70  011.44.1345.629268  20051215     SA_REP   7500
+71  011.44.1345.529268  20061103     SA_REP   7000
+72  011.44.1346.129268  20051111     SA_REP  10500
+73  011.44.1346.229268  20070319     SA_REP   9500
+74  011.44.1346.329268  20080124     SA_REP   7200
+75  011.44.1346.529268  20080223     SA_REP   6800
+76  011.44.1346.629268  20080324     SA_REP   6400
+77  011.44.1346.729268  20080421     SA_REP   6200
+78  011.44.1343.929268  20050311     SA_REP  11500
+79  011.44.1343.829268  20060323     SA_REP  10000
+80  011.44.1343.729268  20060124     SA_REP   9600
+81  011.44.1343.629268  20070223     SA_REP   7400
+82  011.44.1343.529268  20070324     SA_REP   7300
+83  011.44.1343.329268  20080421     SA_REP   6100
+84  011.44.1644.429267  20040511     SA_REP  11000
+85  011.44.1644.429266  20050319     SA_REP   8800
+86  011.44.1644.429265  20060324     SA_REP   8600
+87  011.44.1644.429264  20060423     SA_REP   8400
+88  011.44.1644.429263  20070524     SA_REP   7000
+89  011.44.1644.429262  20080104     SA_REP   6200
+90        650.507.9876  20060124   SH_CLERK   3200
+    COMMISSION_PCT MANAGER_ID DEPARTMENT_ID
+1               NA        124            50
+2               NA        124            50
+3               NA        101            10
+4               NA        100            20
+5               NA        201            20
+6               NA        101            40
+7               NA        101            70
+8               NA        101           110
+9               NA        205           110
+10              NA         NA            90
+11              NA        100            90
+12              NA        100            90
+13              NA        102            60
+14              NA        103            60
+15              NA        103            60
+16              NA        103            60
+17              NA        103            60
+18              NA        101           100
+19              NA        108           100
+20              NA        108           100
+21              NA        108           100
+22              NA        108           100
+23              NA        108           100
+24              NA        100            30
+25              NA        114            30
+26              NA        114            30
+27              NA        114            30
+28              NA        114            30
+29              NA        114            30
+30              NA        100            50
+31              NA        100            50
+32              NA        100            50
+33              NA        100            50
+34              NA        100            50
+35              NA        120            50
+36              NA        120            50
+37              NA        120            50
+38              NA        120            50
+39              NA        121            50
+40              NA        121            50
+41              NA        121            50
+42              NA        121            50
+43              NA        122            50
+44              NA        122            50
+45              NA        122            50
+46              NA        122            50
+47              NA        123            50
+48              NA        123            50
+49              NA        123            50
+50              NA        123            50
+51              NA        124            50
+52              NA        124            50
+53              NA        124            50
+54              NA        124            50
+55            0.40        100            80
+56            0.30        100            80
+57            0.30        100            80
+58            0.30        100            80
+59            0.20        100            80
+60            0.30        145            80
+61            0.25        145            80
+62            0.25        145            80
+63            0.20        145            80
+64            0.20        145            80
+65            0.15        145            80
+66            0.35        146            80
+67            0.35        146            80
+68            0.35        146            80
+69            0.30        146            80
+70            0.30        146            80
+71            0.25        146            80
+72            0.25        147            80
+73            0.15        147            80
+74            0.10        147            80
+75            0.10        147            80
+76            0.10        147            80
+77            0.10        147            80
+78            0.25        148            80
+79            0.20        148            80
+80            0.20        148            80
+81            0.15        148            80
+82            0.15        148            80
+83            0.10        148            80
+84            0.30        149            80
+85            0.25        149            80
+86            0.20        149            80
+87            0.20        149            80
+88            0.15        149            NA
+89            0.10        149            80
+90              NA        120            50
+ [ reached getOption("max.print") -- omitted 17 rows ]
+
+names(emp) - 컬럼이름 확인
+ [1] "EMPLOYEE_ID"    "FIRST_NAME"     "LAST_NAME"     
+ [4] "EMAIL"          "PHONE_NUMBER"   "HIRE_DATE"     
+ [7] "JOB_ID"         "SALARY"         "COMMISSION_PCT"
+[10] "MANAGER_ID"     "DEPARTMENT_ID" 
+
+
+emp[emp$EMPLOYEE_ID==100,] - 해당하는 값의 row값 뽑아내는 방법
+
+   EMPLOYEE_ID FIRST_NAME LAST_NAME EMAIL PHONE_NUMBER
+10         100     Steven      King SKING 515.123.4567
+   HIRE_DATE  JOB_ID SALARY COMMISSION_PCT MANAGER_ID
+10  20030617 AD_PRES  29040             NA         NA
+   DEPARTMENT_ID
+10            90
+
+같다.
+
+select * from employees where employee_id=100;
+
+만약 last_name과 salary만 보고 싶다면 
+
+emp[emp$EMPLOYEE_ID==100,c("LAST_NAME","SALARY")]
+
+select last_name,salary from employees where employee_id=100;
+
+
+# 문자함수
+
+1. nchar : 문자수를 리턴하는 함수(length), 공백도 포함을 한다.
+
+예) nchar('R Developer')
+[1] 11
+
+nchar('R Developer',type="chars")
+[1] 11
+
+nchar('R Developer',type="bytes") -영문자 한글자당 1Byte
+[1] 11
+
+nchar('빅데이터')
+[1] 4
+nchar('빅데이터',type="chars")
+[1] 4
+nchar('빅데이터',type="bytes") - 한글 한글자당 2Byte
+[1] 8
+
+2. strsplit : 부분문자로 분리하는 함수 
+
+strsplit('R Developer') - 오류가난다.
+strsplit('R Developer',split = character(0)) -- 글자 하나하나를 split 한다.
+strsplit('R Developer',split = " ") -- 글자 하나하나를 split 한다.
+strsplit('R Developer',split = ",") 
+
+> str(strsplit('R Developer',split = ",") )
+List of 1
+ $ : chr "R Developer"
+
+unlist(str(strsplit('R Developer',split = ",") )
+List of 1
+ $ : chr "R Developer"
+> unlist(str(strsplit('R Developer',split = ",") )
+
+strsplit(emp$LAST_NAME,split=character(0)) - 글자를 하나하나 세준다.
+[[1]]
+[1] "O" "C" "o" "n" "n" "e" "l" "l"
+
+[[2]]
+[1] "G" "r" "a" "n" "t"
+
+[[3]]
+[1] "W" "h" "a" "l" "e" "n"
+
+[[4]]
+[1] "H" "a" "r" "t" "s" "t" "e" "i" "n"
+
+[[5]]
+[1] "F" "a" "y"
+
+[[6]]
+[1] "M" "a" "v" "r" "i" "s"
+
+[[7]]
+[1] "B" "a" "e" "r"
+
+[[8]]
+[1] "H" "i" "g" "g" "i" "n" "s"
+
+[[9]]
+[1] "G" "i" "e" "t" "z"
+
+[[10]]
+[1] "K" "i" "n" "g"
+
+[[11]]
+[1] "K" "o" "c" "h" "h" "a" "r"
+
+[[12]]
+[1] "D" "e" " " "H" "a" "a" "n"
+
+[[13]]
+[1] "H" "u" "n" "o" "l" "d"
+
+[[14]]
+[1] "E" "r" "n" "s" "t"
+
+[[15]]
+[1] "A" "u" "s" "t" "i" "n"
+
+[[16]]
+[1] "P" "a" "t" "a" "b" "a" "l" "l" "a"
+
+[[17]]
+[1] "L" "o" "r" "e" "n" "t" "z"
+
+[[18]]
+[1] "G" "r" "e" "e" "n" "b" "e" "r" "g"
+
+[[19]]
+[1] "F" "a" "v" "i" "e" "t"
+
+[[20]]
+[1] "C" "h" "e" "n"
+
+[[21]]
+[1] "S" "c" "i" "a" "r" "r" "a"
+
+[[22]]
+[1] "U" "r" "m" "a" "n"
+
+[[23]]
+[1] "P" "o" "p" "p"
+
+[[24]]
+[1] "R" "a" "p" "h" "a" "e" "l" "y"
+
+[[25]]
+[1] "K" "h" "o" "o"
+
+[[26]]
+[1] "B" "a" "i" "d" "a"
+
+[[27]]
+[1] "T" "o" "b" "i" "a" "s"
+
+[[28]]
+[1] "H" "i" "m" "u" "r" "o"
+
+[[29]]
+ [1] "C" "o" "l" "m" "e" "n" "a" "r" "e" "s"
+
+[[30]]
+[1] "W" "e" "i" "s" "s"
+
+[[31]]
+[1] "F" "r" "i" "p" "p"
+
+[[32]]
+[1] "K" "a" "u" "f" "l" "i" "n" "g"
+
+[[33]]
+[1] "V" "o" "l" "l" "m" "a" "n"
+
+[[34]]
+[1] "M" "o" "u" "r" "g" "o" "s"
+
+[[35]]
+[1] "N" "a" "y" "e" "r"
+
+[[36]]
+ [1] "M" "i" "k" "k" "i" "l" "i" "n" "e" "n" "i"
+
+[[37]]
+[1] "L" "a" "n" "d" "r" "y"
+
+[[38]]
+[1] "M" "a" "r" "k" "l" "e"
+
+[[39]]
+[1] "B" "i" "s" "s" "o" "t"
+
+[[40]]
+[1] "A" "t" "k" "i" "n" "s" "o" "n"
+
+[[41]]
+[1] "M" "a" "r" "l" "o" "w"
+
+[[42]]
+[1] "O" "l" "s" "o" "n"
+
+[[43]]
+[1] "M" "a" "l" "l" "i" "n"
+
+[[44]]
+[1] "R" "o" "g" "e" "r" "s"
+
+[[45]]
+[1] "G" "e" "e"
+
+[[46]]
+ [1] "P" "h" "i" "l" "t" "a" "n" "k" "e" "r"
+
+[[47]]
+[1] "L" "a" "d" "w" "i" "g"
+
+[[48]]
+[1] "S" "t" "i" "l" "e" "s"
+
+[[49]]
+[1] "S" "e" "o"
+
+[[50]]
+[1] "P" "a" "t" "e" "l"
+
+[[51]]
+[1] "R" "a" "j" "s"
+
+[[52]]
+[1] "D" "a" "v" "i" "e" "s"
+
+[[53]]
+[1] "M" "a" "t" "o" "s"
+
+[[54]]
+[1] "V" "a" "r" "g" "a" "s"
+
+[[55]]
+[1] "R" "u" "s" "s" "e" "l" "l"
+
+[[56]]
+[1] "P" "a" "r" "t" "n" "e" "r" "s"
+
+[[57]]
+[1] "E" "r" "r" "a" "z" "u" "r" "i" "z"
+
+[[58]]
+[1] "C" "a" "m" "b" "r" "a" "u" "l" "t"
+
+[[59]]
+[1] "Z" "l" "o" "t" "k" "e" "y"
+
+[[60]]
+[1] "T" "u" "c" "k" "e" "r"
+
+[[61]]
+[1] "B" "e" "r" "n" "s" "t" "e" "i" "n"
+
+[[62]]
+[1] "H" "a" "l" "l"
+
+[[63]]
+[1] "O" "l" "s" "e" "n"
+
+[[64]]
+[1] "C" "a" "m" "b" "r" "a" "u" "l" "t"
+
+[[65]]
+[1] "T" "u" "v" "a" "u" "l" "t"
+
+[[66]]
+[1] "K" "i" "n" "g"
+
+[[67]]
+[1] "S" "u" "l" "l" "y"
+
+[[68]]
+[1] "M" "c" "E" "w" "e" "n"
+
+[[69]]
+[1] "S" "m" "i" "t" "h"
+
+[[70]]
+[1] "D" "o" "r" "a" "n"
+
+[[71]]
+[1] "S" "e" "w" "a" "l" "l"
+
+[[72]]
+[1] "V" "i" "s" "h" "n" "e" "y"
+
+[[73]]
+[1] "G" "r" "e" "e" "n" "e"
+
+[[74]]
+[1] "M" "a" "r" "v" "i" "n" "s"
+
+[[75]]
+[1] "L" "e" "e"
+
+[[76]]
+[1] "A" "n" "d" "e"
+
+[[77]]
+[1] "B" "a" "n" "d" "a"
+
+[[78]]
+[1] "O" "z" "e" "r"
+
+[[79]]
+[1] "B" "l" "o" "o" "m"
+
+[[80]]
+[1] "F" "o" "x"
+
+[[81]]
+[1] "S" "m" "i" "t" "h"
+
+[[82]]
+[1] "B" "a" "t" "e" "s"
+
+[[83]]
+[1] "K" "u" "m" "a" "r"
+
+[[84]]
+[1] "A" "b" "e" "l"
+
+[[85]]
+[1] "H" "u" "t" "t" "o" "n"
+
+[[86]]
+[1] "T" "a" "y" "l" "o" "r"
+
+[[87]]
+ [1] "L" "i" "v" "i" "n" "g" "s" "t" "o" "n"
+
+[[88]]
+[1] "G" "r" "a" "n" "t"
+
+[[89]]
+[1] "J" "o" "h" "n" "s" "o" "n"
+
+[[90]]
+[1] "T" "a" "y" "l" "o" "r"
+
+[[91]]
+[1] "F" "l" "e" "a" "u" "r"
+
+[[92]]
+[1] "S" "u" "l" "l" "i" "v" "a" "n"
+
+[[93]]
+[1] "G" "e" "o" "n" "i"
+
+[[94]]
+[1] "S" "a" "r" "c" "h" "a" "n" "d"
+
+[[95]]
+[1] "B" "u" "l" "l"
+
+[[96]]
+[1] "D" "e" "l" "l" "i" "n" "g" "e" "r"
+
+[[97]]
+[1] "C" "a" "b" "r" "i" "o"
+
+[[98]]
+[1] "C" "h" "u" "n" "g"
+
+[[99]]
+[1] "D" "i" "l" "l" "y"
+
+[[100]]
+[1] "G" "a" "t" "e" "s"
+
+[[101]]
+[1] "P" "e" "r" "k" "i" "n" "s"
+
+[[102]]
+[1] "B" "e" "l" "l"
+
+[[103]]
+[1] "E" "v" "e" "r" "e" "t" "t"
+
+[[104]]
+[1] "M" "c" "C" "a" "i" "n"
+
+[[105]]
+[1] "J" "o" "n" "e" "s"
+
+[[106]]
+[1] "W" "a" "l" "s" "h"
+
+[[107]]
+[1] "F" "e" "e" "n" "e" "y"
+
+3. toupper : 대문자
+
+	toupper('r developer')
+
+4. tolower : 소문자
+	
+	tolower('R DEVELOPER')
+
+5. substr : 문자열 추출 
+
+	substr('R Developer',1,1)
+
+	substr('R Developer',시작점,끝점)
+
+	substr('123456789',1,1)
+	substr('123456789',1,2)
+	substr('123456789',5,5)
+
+6. sub : 첫번째 일치하는 문자만 바꾸는 함수 
+
+sub('R','Python','R programmer R Developer')
+
+sub(찾아야할 대상, 바꿀값, 원본) 
+
+[1] "Python programmer R Developer"
+
+7. gsub : 일치하는 문자만 바꾸는 함수 
+
+gsub('R','Python','R programmer R Developer')
+
+> gsub('R','Python','R programmer R Developer')
+[1] "Python programmer Python Developer"
+
+gsub('[0-2]','*','120304') -- '[0-2]' : 정규식 표현식 일부임. 
+[1] "***3*4"
+
+# 숫자 함수 
+
+1. round : 반올림 하는 함수
+
+round(45.926) - 기본은 1의자리까지이다.
+[1] 46
+> round(45.926,1)
+[1] 45.9
+> round(45.926,2)
+[1] 45.93
+> round(45.926,0)
+[1] 46
+> round(45.926,-1) - 10의 자리
+[1] 50
+> round(45.926,-2) - 100의 자리
+[1] 0
+
+2. trunc : 버림함수 
+
+trunc(45.926) - 그냥 소수점을 다버린다. 몇자리만 남기는 것도 불가능하다. 그냥 버림함수
+
+> trunc(45.926,3)
+[1] 45
+> trunc(45.926,2)
+[1] 45
+> trunc(45.926,1)
+[1] 45
+> trunc(45.926,0)
+[1] 45
+> trunc(45.926,-1)
+[1] 45
+> trunc(45.926,-2)
+[1] 45
+
+3. signif : 수에 위치에 따라 그 위치의 다음 값을 통해 반올림을 하는 함수 
+
+45.926
+12 345 
+
+signif(45.926,1) --- 1을 기준으로해서 뒤에 있는 것을 반올림
+[1] 50
+signif(45.926,2) --- 2를 기준으로해서 뒤에 있는 것을 반올림
+[1] 46
+signif(45.926,3)
+[1] 45.9
+signif(45.926,4)
+[1] 45.93
+
+4. floor : 소수점을 절삭 하는 함수 , 가우스 함수 (음수로 비교), 적은 수보다 크지않은 수로 반환
+
+floor(-45.926)
+[1] 45
+> floor(-45.926)
+[1] -46
+> floor(-45.426)
+[1] -46
+> floor(-42.426)
+[1] -43
+
+# 날짜함수 
+
+1. 현재날짜 시간 
+
+Sys.Date() - 현재 시간을 나타내는 함수 <연 월 일>
+[1] "2018-07-25"
+Sys.time() - 연월일 시분초 지역이름 까지 모두 나오는 값
+[1] "2018-07-25 16:22:29 KST"
+date() - 영어로 나옴 
+[1] "Wed Jul 25 16:23:19 2018"
+
+2. as.Date : 문자날짜를 날짜형으로 변환하는 함수
+
+as.Date('2018-07-25')
+[1] "2018-07-25"
+as.Date('2018/07/25')
+[1] "2018-07-25"
+as.Date('20180725') -- 기본 표준서식위반 , 이것도 지역에 따른다.
+
+Error in charToDate(x) : 문자열이 표준서식을 따르지 않습니다
+
+만약 저렇게 만들고 싶다면 format을 사용한다.
+
+as.Date('20180725',format='%Y%m%d')
+[1] "2018-07-25"
+
+# format
+	%Y: 세기를 포함한 년도(4자리)
+	%y: 세기를 생략한 년도(2자리)
+	%m: 숫자달
+	%B: 문자달
+	%d: 일
+	%A: 요일
+	%u: 숫자요일 1 ~ 7 월요일(1)
+	%w: 숫자요일 0 ~ 6 일요일(0)
+	%H: 시
+	%M: 분
+	%S: 초
+
+as.Date('2018년 1월 2일', format='%년%m월%d일') 
+[1] "2018-01-02"
+
+우리가 원하는 포맷으로 뽑아내는 방법 : format을 이용한다.
+
+format(Sys.time(),'%y%m%d')
+[1] "180725"
+
+

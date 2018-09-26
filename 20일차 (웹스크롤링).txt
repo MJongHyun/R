@@ -1,0 +1,135 @@
+#데이터 수집 (웹스크롤링)
+
+페이지에서 마우스 오른쪽버튼 -> 요소검사 (F12) # HTML -> URL긁어내
+
+패키지 설치
+
+install.packages("rvest") # URL값을 가져오면 읽기위해 필요한 패키지
+library(rvest)
+
+https://search.joins.com/joongangnews?keyword=%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0&searchcategorytype=JoongangNews
+
+https://search.joins.com/JoongangNews?page=1&Keyword=%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0&SortType=New&SearchCategoryType=JoongangNews #페이지가 추가되었다.
+
+https://search.joins.com/JoongangNews?page=2&Keyword=%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0&SortType=New&SearchCategoryType=JoongangNews
+
+# page만 다르기 때문에 다른 값들은 for문을 통해서 하면 여러 페이지를 가져올 수 있다
+
+
+# read_html
+
+html<-read_html("https://search.joins.com/JoongangNews?page=1&Keyword=%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0&SortType=New&SearchCategoryType=JoongangNews")
+
+html
+
+url<-html_nodes(html, ".list_default .headline")%>% 
+  html_nodes("a")%>%
+  html_attr("href")
+
+url
+
+html<-read_html("https://news.joins.com/article/22896642")
+
+html
+
+txt<-html_nodes(html,"#article_body")%>%
+  html_text()
+
+
+
+[문제] 1~10page까지 100개 url 가져오고, url 기사들을 가져와서 어떤 단어가 가장 많은지 파악하기 
+
+library(rvest)
+html<-list()
+for (i in 1:10){
+  html[[i]]<-read_html(paste("https://search.joins.com/JoongangNews?page=",i,"&Keyword=%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0&SortType=New&SearchCategoryType=JoongangNews",sep=""))
+}
+url<-list()
+for (i in 1:10){
+  url[[i]]<-html_nodes(html[[i]], ".list_default .headline")%>% 
+    html_nodes("a")%>%
+    html_attr("href")
+}
+
+url1<-unlist(url)
+url1
+
+rec<-list()
+
+for (i in 1:100){
+    rec[[i]]<-read_html(url1[i])
+}
+
+for (i in 1:100){
+  txt[i]<-html_nodes(rec[[i]],"#article_body")%>%
+    html_text()
+}
+
+library(KoNLP)
+
+ad<-list()
+
+for (i in 1:100){
+  ad[[i]]<-extractNoun(txt[i])
+}
+
+a<-unlist(ad)
+
+add<-Filter(functionon(x){nchar(x) >= 2},a)
+
+total<-head(sort(table(add),decreasing = TRUE),50)
+
+total
+
+library(wordcloud)
+
+pal<-brewer.pal(8,"Dark2") 
+wordcloud(names(total),freq=total,scale=c(2,0.5),min.freq=2,random.order=F,rot.per=.1,colors=pal)
+
+
+
+
+
+
+
+
+# 연습
+
+html<-read_html("http://search.hani.co.kr/Search?command=query&keyword=%EB%B9%85%EB%8D%B0%EC%9D%B4%ED%84%B0&media=news&sort=d&period=all&datefrom=2000.01.01&dateto=2018.08.20&pageseq=0")
+
+html
+
+url<-html_nodes(html, ".search-result-section .search-result-list")%>%
+  html_nodes("dl")%>%
+  html_nodes("dt")%>%
+  html_nodes("a")%>%
+  html_attr("href")
+
+url
+
+html<-read_html("http://www.hani.co.kr/arti/economy/it/858299.html")
+
+html
+
+txt<-html_nodes(html,".article-text")%>%
+  html_nodes("div")%>%
+  html_text()
+
+txt
+
+# 연습 2
+
+html<-read_html("https://movie.naver.com/movie/point/af/list.nhn?st=mcode&sword=152661&target=after&page=1")
+
+html
+
+txt<-html_nodes(html,".list_netizen .title")%>%
+  html_nodes("table")%>%
+  html_nodes("td")%>%
+  html_text()
+
+txt
+
+
+
+

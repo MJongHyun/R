@@ -1,0 +1,231 @@
+# 함수(function)
+
+- 사용자가 정의 하는 함수를 생성할 수 있다.
+- 자주 반복되어 사용하는 기능을 정의하는 프로그램
+- 코드가 간단해진다.
+
+함수이름 <- function(){
+			함수 수행해야할 코드
+			return(반환값) # 선택
+		      }
+
+Sys.Date()
+
+date1 <- function(){
+			return(Sys.Date())
+		   }
+date1()
+
+time <- function(){
+		    Sys.time()
+		   }
+
+time()
+
+# 매개변수 사용 (x,y)
+  res <- local 변수 (함수안에서만 사용)
+
+hap <- function(x,y) {
+			res<-x+y 
+			return(res)
+		     }
+hap(1,2)
+[1] 3
+
+# 가변 인수값을 사용하는 함수
+
+예) hap(1) hap(1,2) hap(1,2,3,4)
+
+f<-function(...){
+			x<-list(...) -- ...이 들어오는 값
+			for (i in x){
+					print(i)
+				    }
+		}
+
+> f(1)
+[1] 1
+> f(1,2)
+[1] 1
+[1] 2
+> f(1,2,3)
+[1] 1
+[1] 2
+[1] 3
+> f('a','b','c','d')
+[1] "a"
+[1] "b"
+[1] "c"
+[1] "d"
+
+f<-function(...){
+			x<-c(...) 
+			for (i in x){
+					print(i)
+				    }
+		}
+
+# 중첩함수
+
+f <- function(x,y){
+			print(x)
+			f2 <- function(y){
+						y<-x*y
+						print(y)
+					 }
+			f2(y)  -- y에 대해서도 반드시 입력을 해줘야 수행을 한다. 결국 전체 함수에서 실행을 해줘야한다.
+		  }
+
+> f(10,20)
+[1] 10
+[1] 200
+
+# 전역변수(global variable)
+- 함수에 상관없이 프로그램 전체에서 사용할 수 있는 변수 
+
+# 지역변수 (local variable)
+- 함수내에서 정의되고 사용하는 변수
+
+# 매개변수 (parameter variable)
+- 함수의 인수에서 받아서 사용하는 변수
+
+x<-1; y<-2; z<-3;
+
+f<-function(x){
+	y <- x*10
+	print(x); print(y); print(z)
+	}	      }
+> f(x)
+[1] 1 
+[1] 10
+[1] 3
+
+> x
+[1] 1
+> y
+[1] 2
+> z
+[1] 3
+
+
+x<-1; y<-2; z<-3;
+
+f<-function(x){
+	y <<- x*10 -- <<- 전역변수에 영향을 준다. // 아예 전역변수가 생성이된다.
+	print(x); print(y); print(z)
+	}
+
+> f(x)
+[1] 1
+[1] 10
+[1] 3
+> x
+[1] 1
+> y
+[1] 10
+> z
+[1] 3
+
+x<-1; y<-2; z<-3;
+
+f<-function(x){
+	y = x*10 -- 지역변수로 영향을 준다. 
+	print(x); print(y); print(z)
+	}
+
+> f(x)
+[1] 1
+[1] 10
+[1] 3
+> x
+[1] 1
+> y
+[1] 2
+> z
+[1] 3
+
+# merge(pl/sql에서 join 과 같다.)
+- 두 data.frame의 공통된 값을 기준으로 병합한다.
+
+x1<-data.frame(id=c(100,200,300),sql=c(70,90,80));
+y1<-data.frame(id=c(100,200,500),python=c(80,70,60));
+
+rbind(x1,y1) -- 원하는 값이 나오지 않는다.
+cbind(x1,y1)
+id sql  id python
+1 100  70 100     80
+2 200  90 200     70
+3 300  80 500     60
+
+merge(x1,y1) -- 일치되는 값만 출력한다. equi join 과 같다.
+   id sql python
+1 100  70     80
+2 200  90     70
+
+merge(x1,y1,all=T) -- full outer join 과 같다.
+
+   id sql python
+1 100  70     80
+2 200  90     70
+3 300  80     NA
+4 500  NA     60
+
+merge(x1,y1,all.x=T) -- left outer join과 같다, 
+
+   id sql python
+1 100  70     80
+2 200  90     70
+3 300  80     NA
+
+merge(x1,y1,all.y=T) -- right outer join 과 같다.
+
+   id sql python
+1 100  70     80
+2 200  90     70
+3 500  NA     60
+
+x1<-data.frame(id=c(100,200,300),sql=c(70,90,80))
+x2<-data.frame(id=c(100,200,300),sql=c(80,70,60))
+x3<-data.frame(no=c(100,200,500),python=c(80,70,60))
+		
+# 동일한 컬럼이 없을 경우 : by 옵션을 사용한다 merge(x,y,by.x,by.y)
+
+x4<-merge(x1,x3,by.x='id',by.y='no')
+
+   id sql python
+1 100  70     80
+2 200  90     70
+
+merge(x4,x2,by.x='id',by.y='id')
+
+   id sql.x python sql.y
+1 100    70     80    80
+2 200    90     70    70
+
+x4<-merge(x1,x3,by.x='id',by.y='no',all=T)
+> x4
+   id sql python
+1 100  70     80
+2 200  90     70
+3 300  80     NA
+4 500  NA     60
+
+x4<-merge(x4,x2,by.x='id',by.y='id',all=T)
+
+> x4
+   id sql python
+1 100  70     80
+2 200  90     70
+3 300  80     NA
+4 500  NA     60
+
+dept<-read.csv('c:/data/dept.csv',header=TRUE,stringsAsFactors=FALSE)
+dept
+merge(emp,dept,by='DEPARTMENT_ID') # by : join using절과 같다.
+
+select last_name,department_name
+from emp join dept
+using(department_id);
+
+merge(emp,dept,by='DEPARTMENT_ID')[,c('LAST_NAME','DEPARTMENT_NAME')] -- 위의 sql 문장처럼 실행하고 싶을 경우 
+

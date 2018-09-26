@@ -1,0 +1,42 @@
+Fknn<-function(a,b,c,x){
+  
+  d<-c()
+  min<-999
+  e<-b
+  f<-c()
+  g<-c()
+  h<-c()
+  j<-data.frame(group=c('a'),dist=c(1), stringsAsFactors = FALSE)
+  
+  for(j in 1:x){
+    for(i in 1:NROW(a)){
+      if(NROW(a)==1){
+        d<-sqrt((b[,1]-a[,1])^2+(b[,2]-a[,2])^2)
+        e[j,]<-data.frame(c[j],d,stringsAsFactors = FALSE)
+        break;
+      }
+      d[i]<-sqrt((b[,1]-a[,1][i])^2+(b[,2]-a[,2][i])^2)
+      if(min>d[i]){
+        e[j,]<-data.frame(c[i],d[i],stringsAsFactors = FALSE)
+        min<-d[i]
+        f<-i
+      }
+      if(i==NROW(a)){
+        a<-a[-f,]
+        min<-999
+        d<-c()
+        f<-c()
+      }
+    }
+  }
+  colnames(e)<-c('group','dist')
+  g<-table(e$group)
+  h<-names(g[table(e$group)==max(g)])
+  if(length(h)>=2){
+    for (i in 1:length(h)){
+      j[i,]<-data.frame(c(h[i]),sum(e$dist[e$group==h[i]]), stringsAsFactors = FALSE)    
+    }
+    ifelse((length(j$group[min(j$dist)==j$dist])>=2),return(h[1]),return(j$group[min(j$dist)==j$dist]))
+    }
+return(h)   
+}

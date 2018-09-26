@@ -1,0 +1,56 @@
+# 정제작업시 먼저 문자를 나눈후 정제를 하는 것이아니라 먼저 나올값을 먼저 정제를해서 사용한다.
+# 지도에서 라인을 긋고 싶다면.
+
+
+library(ggplot2)
+library(ggmap)
+
+jeju <- read.csv("c:/data/제주도여행코스.csv",header=T)
+jeju
+jeju1 <- get_map(location = c(lon = 126.52916660000005, lat = 33.3616666), zoom=10, maptype = "roadmap")
+jeju.map <- ggmap(jeju1)+
+  geom_point(data=jeju, aes(x=LON, y=LAT),size=1,alpha=0.7,col="red")
+
+# geom_path 함수를 써서 경로를 선으로 연결해서 표시합니다.
+
+jeju.map + 
+  geom_path(data=jeju,aes(x=LON,y=LAT),size=1,linetype=2,col="blue")+
+  geom_text(data=jeju, aes(x = LON, y = LAT+0.01, label=장소),size=2)
+
+ggsave("c:/data/jeju.png",dpi=300) # 지도를 수행후 저장
+
+
+
+data<-readLines('c:/data/jeju.txt')
+data
+
+[문제] 하나 이상의 연이어 있는 숫자를 찾기
+
+
+grep('[[:digit:]]{1,}',data,value=T) # 문제점: 숫자만 뽑을수가 없다.
+library(stringr)
+
+table(unlist(str_extract_all(data,"[[:digit:]]{1,}"))) # 반복찾기
+
+
+
+[문제] 숫자만 뽑는게아니라 숫자자리 왼쪽과 오른쪽 문자가 있으면 보여주는방법
+       # 숫자 앞 뒤에 문자가 있거나 없는 경우
+
+unlist(str_extract_all(data,"[[:alpha:]]{0,}[[:digit:]]{1,}[[:alpha:]]{0,}"))
+                              # 문자 0이상 숫자 1개이상 문자0 이상
+# 빈도수 체크
+
+table(unlist(str_extract_all(data,"[[:alpha:]]{0,}[[:digit:]]{1,}[[:alpha:]]{0,}")))
+
+
+
+# 우도 앞과 뒤에 있는 값 찾기
+
+unlist(str_extract_all(data,"[[:alpha:]]{0,}우도[[:alpha:]]{0,}"))
+unlist(str_extract_all(data,"[[:punct:]]{0,}중문[[:punct:]]{0,}"))
+unlist(str_extract_all(data,"[[:punct:]]{0,}중문[[:punct:]]{0,}[[:alpha:]]{0,}"))
+unlist(str_extract_all(data,"[[:alpha:]]{0,}폭포[[:alpha:]]{0,}"))
+unlist(str_extract_all(data,"[[:alpha:]]{0,}[' ']{0,}폭포[[:alpha:]]{0,}"))
+
+

@@ -1,0 +1,136 @@
+# aggregate(SALARY~DEPARTMENT_ID,emp,mean) -- na값이 나오지 않는다.
+aggregate(SALARY~DEPARTMENT_ID+JOB_ID,emp,mean) -- department_id의 na값이 나오지 않는다.
+
+# ddply
+- 데이터프레임을 분할하고 함수를 적용한 뒤 데이터 프레임으로 결과를 반환하는 함수
+
+install.packages("plyr")
+library(plyr)
+
+- apply 계열이다.
+
+ddply(data,기준컬럼,함수)
+
+# summarise : 기준컬럼의 데이터끼리 모은 후 함수에 적용 (grouping 해주는 옵션), NA값도 나오게 한다.
+
+ddply(emp,'DEPARTMENT_ID',summarise,avg_sal=mean(SALARY)) 
+ddply(emp,c('DEPARTMENT_ID','JOB_ID'),summarise,avg_sal=mean(SALARY))
+ddply(emp,'DEPARTMENT_ID',summarise,cn=length(SALARY),sum_sal=sum(SALARY),avg_sal=mean(SALARY)) - 다른 함수들도 추가해서 값을 넣을 수 있다.
+
+ddply(fru,'year',summarise,s_qty=sum(qty),s_price=sum(price))
+
+ddply(fru,'name',max(qty),min(price))
+
+# transform - 각 행별로 연산을 수행해서 행당값을 출력하는 기능.
+
+ddply(fru,'name',transform,s_qty=sum(qty)) - 이름별로 해서 과일 이름에 해당하는 합이 출력된다.
+ddply(fru,'year',transform,s_qty=sum(qty)) - 연도별 판매량이 나온다.
+
+ddply(fru,'name',transform,s_qty=sum(qty),pct_qty=(100*qty)/sum(qty)) - 비율값 계산
+ddply(fru,'year',transform,s_qty=sum(qty),pct_qty=(100*qty)/sum(qty))
+
+# dplyr
+
+install.packages("dplyr")
+library(dplyr)
+
+emp[emp$DEPARTMENT_ID==20,] -- NA행이 나온다.
+
+# filter : 조건을 주어서 필터링하는 함수
+
+filter(emp,DEPARTMENT_ID==20) -- NA행이 나오지않는다.
+
+filter(emp,DEPARTMENT_ID==20)[,c('LAST_NAME','SALARY')] -- 특정 열값 불러오는 방법 / 제한은 merge와 마찬가지로 []안에서 제한을 하면 안된다.
+
+filter(emp,DEPARTMENT_ID==20)[,2:5] - 2~5열 까지 값 출력
+
+filter(emp,DEPARTMENT_ID==30 & SALARY>=3000)[,1:5] -- 조건을 추가하는 것이 가능하다.
+
+# select: 여러컬럼이 있는 데이터프레임에서 특정 컬럼만 선택사용 함수 (dplyr 에 있는 method 이다.)
+
+ select(emp,LAST_NAME,SALARY)
+ select(emp,1,2)
+ select(emp,1:5)
+ select(emp,2,4,6)
+ select(emp,-SALARY,-COMMISSION_PCT)
+
+# %>% : 여러문장을 조합해서 사용하는 방법을 제공 
+
+emp%>%
+	select(LAST_NAME,JOB_ID,SALARY)%>% -- 고른값
+	filter(SALARY>=20000) -- 제한
+
+emp%>%
+  select(LAST_NAME,JOB_ID,SALARY)%>%
+  filter(SALARY>=10000)
+
+emp%>%
+  select(LAST_NAME,JOB_ID,SALARY)%>%
+  filter(SALARY>=10000)%>%
+  arrange(SALARY)  -- 오름차순가능하게 해주는 함수  
+
+emp%>%
+  select(LAST_NAME,JOB_ID,SALARY)%>%
+  filter(SALARY>=10000)%>%
+  arrange(desc(SALARY)) -- 내림차순 
+
+# mutate: 새로운 컬럼을 추가 
+
+emp$SAL <- emp$SALARY * 12
+emp$SAL <- NULL
+
+mutate(emp,sal=SALARY*12) -- 미리보기이다.
+
+직접 생성하려면 데이터 프레임 생성해서 넣으면된다.
+
+df<-mutate(emp,sal=SALARY*12)
+str(df)
+
+emp%>%
+	select(LAST_NAME,JOB_ID,SALARY,COMMISSION_PCT)%>%
+	mutate(ANNUAL_SAL=SALARY*12+
+			ifelse(is.na(COMMISSION_PCT),0,SALARY*COMMISSION_PCT))%>% -- 이미 emp가 들어가기 때문에 굳이 데이터 emp를 적을 필요가 없다.
+	arrange(desc(ANNUAL_SAL))
+
+★★★ %>%- 앞에서 선언한것을 계속 이어가기 때문에 emp를 선언했더라도 다음줄에 컬럼을 선언하지 않으면 사용할 수 없다.
+
+# summarise : 주어진 데이터 집계를 구한다.
+
+emp%>%
+	summarize(sum_sal=sum(SALARY),mean_sal=mean(SALARY))
+
+emp%>%
+	summarize(max_sal=max(SALARY),min_sal=min(SALARY))
+
+emp%>%  -- data.frame이다.
+  group_by(DEPARTMENT_ID)%>%
+  summarise(sum_sal=sum(SALARY))
+
+   DEPARTMENT_ID sum_sal
+           <int>   <int>
+ 1            10    4400
+ 2            20   19000
+ 3            30   24900
+ 4            40    6500
+ 5            50  156400
+ 6            60   28800
+ 7            70   10000
+ 8            80  304500
+ 9            90   63040
+10           100   51608
+11           110   20308
+12            NA    7000
+
+emp%>%  
+  group_by(JOB_ID)%>% -- %>% 안에서 그룹을 선언해주는 옵션
+  summarise(sum_sal=sum(SALARY))
+
+emp%>%  
+  group_by(DEPARTMENT_ID,JOB_ID)%>%
+  summarise(sum_sal=sum(SALARY))
+
+emp%>%
+	summarise_at(c("SALARY","COMMISSION_PCT"),sum,na.rm=TRUE) -- summarise_at : 각각 summarise해주는 함수
+
+emp%>% 
+	summarise_if(is.numeric,sum,na.rm=TRUE) -- summarise_if(조건,그룹함수)

@@ -1,0 +1,227 @@
+# 연속형 변수를 범주형 변수로 변환
+- cut(데이터값,breaks=c(나눌범주),labels=c(계급이름),right=FALSE/TRUE)
+  right=FALSE (60<= ~ <70) [60,70)
+  right=TRUE (60< ~ <=70] (60,70]
+
+c<-cut(score,breaks=c(60,70,80,90,100),right=FALSE,labels=c("60점이상~70점미만","70점이상~80점미만","80점이상~90점미만","90점이상"))
+c
+table(c)
+
+c<-cut(score,breaks=seq(60,100,by=10),right=FALSE,labels=c("60점이상~70점미만","70점이상~80점미만","80점이상~90점미만","90점이상"))
+c
+table(c)
+
+
+# 도수 분포표
+
+c.table<-table(c)
+
+# 상대도수 분포표
+
+c.prop<-prop.table(c.table)
+cbind(c.table,c.prop)
+
+
+# 도수분포표는 자료의 중요한 특성을 서술적 방법으로 나타내는데 효과적이고 이를 시각화하려면 히스토그램을 사용하면 된다.
+- 도수분포표 :  값의 분포도를 표현하는 방법
+
+# hist(데이터,breaks=구간,right=TRUE/FALSE,col)
+
+
+hist(score,breaks=seq(60,100,by=10),right=FALSE,col=rainbow(4))
+
+# 줄기 잎 그림 (stem and leaf diagram)
+- 서술적인면과 그래프의 시각적인 면을 동시에 고려하여 자료의 특성을 나타낼 때 사용
+- 자료를 구성하는 각각의 데이터 값들의 줄기(stem)와 잎(leaf)으로 구분된다.
+
+줄기 | 잎
+
+# 만약 문자를 숫자로해서 히스토그램을 쓰고 싶다면, 문자에 숫자를 집어 넣어서 사용한다.
+# 소수점으로 할 경우 값을 반올림에서 결과값으로 나온다.
+# stem 은 반드시 숫자형만 들어간다.
+
+
+
+stem(score)
+
+a<-c(10.2,11.3,20.9,31.7)
+stem(a)
+
+A<-23
+B<-16
+C<-31
+b<-c(A,B,C)
+stem(b)
+
+[문제165] itwill 자동차 수리점 부품 비용 자료 입니다. 분석하세요.
+
+
+91 78 93 57 75 52 99 80 97 62
+71 69 72 89 66 75 79 75 72 76
+104 74 62 68 97 105 77 65 80 109
+85 97 88 68 83 68 71 69 67 74
+62 82 98 101 79 105 79 69 62 73
+
+a<-scan()
+
+# 하나의 부품으로 본 경우 
+
+# 비용값을 plot 
+
+max(a)
+min(a)
+length(a)
+round(50^(1/3))
+b<-cut(a,breaks = seq(50,110,15),right=FALSE,labels=c('95이상 110미만','80이상 95미만','65이상 80미만','50이상 65미만'))
+b.table<-table(b)
+c.prop<-prop.table(b.table)
+data<-cbind(b.table,c.prop)
+data<-as.data.frame(data)
+colnames(data)<-c('도수','상대도수')
+plot(data$도수,main='itwill 자동차 수리점 부품 비용 (단위: 만원)',xlab='범위',ylab='개수',ylim=c(0,30),axes=FALSE,lwd=1,type='o',col='red')
+axis(1,at=1:4,labels=rownames(data))
+axis(2,at=1:30)
+
+
+# 부품을 여러개로 본 경우
+aa<-matrix(c(a),ncol=10,byrow=TRUE)
+aa<-as.data.frame(aa)
+colnames(aa)<-c('A','B','C','D','E','F','G','H','I','J')
+rownames(aa)<-c('2001년','2002년','2003년','2004년','2005년')
+bb<-as.matrix(aa)
+cc<-barplot(bb,beside=T,col=rainbow(length(rownames(aa))),ylim=c(0,120),xlab='부품이름',axes=FALSE,main='itwill 자동차 수리점 부품 비용 (단위: 만원)')
+text(x=cc,y=bb,labels=bb,pos=3,cex=0.5)
+legend("topleft",rownames(aa),fill=rainbow(length(rownames(aa))),cex=0.3)
+
+
+
+# 히스토그램 + plot 하는 방법
+
+hist(a,breaks=seq(50,110,by=15),right=FALSE,col=rainbow(4),labels=TRUE,ylim=c(0,30),main="",axes=FALSE,ylab="",xlab="")
+par(new=T)
+plot(data$도수,main='itwill 자동차 수리점 부품 비용 (단위: 만원)',xlab='범위',ylab='건수',ylim=c(0,30),axes=FALSE,lwd=2,type='o',col='red')
+legend("topright",rownames(data),cex=0.5,fill=rainbow(4),title='단위: 만원')
+
+# 기타 옵션들
+
+- density : 선을 곡선으로 만들어줌, 밀도를 의미한다.
+- par : 그래프를 붙여줌
+
+
+
+plot(density(a),type="l",col="darkblue",lwd=2,axes=FALSE,xlab="",ylab="",main="")
+stem(a)
+
+[문제166] 학생들의 몸무게 자료를 이용해서 도수분포표,그래프를 생성하세요.
+
+weight <- read.table("c:/data/weight.txt")
+
+#read.table를 쓸 경우 마지막에 반드시 줄을 비워놔야 한다.
+
+w<-as.vector(unlist(weight))
+max(w)
+min(w)
+length(w)
+stem(w)
+ww<-cut(w,breaks=seq(50,100,by=10),right=FALSE,labels=c('50이상 60미만','60이상 70미만','70이상 80미만','80이상 90미만','90초과'))
+ee<-xtabs(~ww)
+data<-data.frame(구간=names(ee),도수=as.vector(ee),상대도수=as.vector(prop.table(ee)))
+
+hist(w,breaks=seq(50,100,by=10),ylim=c(0,25),col=rainbow(5),main="몸무게 (단위: 명)",xlab="",ylab='인원수',labels=T,sub='kg')
+par(new=T)
+plot(density(w),type='l',xlim=c(50,100),axes=FALSE,main="",ylab="",xlab="",lwd=2)
+legend("topleft",as.vector(data$구간),fill=rainbow(5),cex=0.4,title='단위 : kg')
+
+stem(w)
+
+# google map 
+
+install.packages("ggmap")
+library(ggmap)
+
+gecode("지역명 또는 주소") - 위도 경도값을 반환하는 함수
+enc2utf8 : 한글을 ut8 형식으로 변환하는 함수 
+
+  lon      lat       lon : longitude 경도, lat : latitude 위도
+1 126.978 37.56654
+
+
+geocode(enc2utf8("서울시"))
+gc<-geocode(enc2utf8("서울시"))
+map<-get_googlemap(center=as.numeric(gc),zoom=18,maptype="satellite")
+ggmap(map)
+
+# get_googlemap 기능 
+center : 지도 좌표값
+zoom : 지도 크기 기본값(10 도시), 3(대륙) ~ 21(빌딩)
+size : 지도 가로 세로 픽셀 크기 640 x 640, size=c(640,640)
+maptype : 지도 유형 
+          terrain(지형정보기반),satellite(위성지도),roadmap(도로명표시),hybrid(위성,도로명)
+marker : 위도 경도 위치에 마커 출력
+ggmap :  지도를 출력하는 함수 
+
+get_googlemap(center=반드시 numeric형식, zoom=기본 10, size=c(), maptype = 지도유형 )
+
+names<-c("1. 협재해수욕장","2. 함덕해수욕장")
+addr<-c("제주특별자치도 제주시 한림읍 협재리 2497-1","제주특별자치도 제주시 조천읍 함덕리 1008")
+
+gc<-geocode(enc2utf8(addr))
+df<-data.frame(name=names,lon=gc$lon,lat=gc$lat)
+df
+
+gc<-geocode(enc2utf8(addr))
+df<-data.frame(name=names,lon=gc$lon,lat=gc$lat)
+df
+cen <- c(mean(df$lon),mean(df$lat)) # 중심좌표값 만들기
+map <- get_googlemap(center=cen,maptype = "roadmap",zoom=10,markers = gc)
+ggmap(map)
+```
+
+# 연습
+
+names<-c("도담삼봉/석문","구담/옥순봉","사인암","하선암","중선암")
+addr<-c("충청북도 단양군 매포읍 삼봉로 644-33","충청북도 단양군 단성면 월악로 3827","충청북도 단양군 대강면 사인암길 37",
+        "충청북도 단양군 단성면 선암계곡로 1337","충청북도 단양군 단성면 선암계곡로 868-2")
+gc<-geocode(enc2utf8(addr))
+df<-data.frame(name=names,lon=gc$lon,lat=gc$lat)
+df
+cen<-c(mean(df$lon),mean(df$lat)) #평균으로 잡는 이유는 지역 한군데를 중심으로 하여 지도에서 편히 보기 위해서 
+cen
+map<-get_googlemap(center=cen,maptype="roadmap",zoom=11,markers =gc) # marker=gc 점이 나오도록 한다.
+ggmap(map,extent="device") # extent="device" 지도 형식을 의미
+gmap<-ggmap(map,extent="device")
+gmap+geom_text(data=df,aes(x=lon,y=lat),size=5,label=df$name) # geom_text-지도안에 텍스트를 적기위해 사용 size: 크기정함, label: 이름적기, data=데이터값, aes(x,y)
+
+# 경도와 위도를 알고 있을 때
+
+cen <- c(2.294481, 48.85837)
+ggmap(get_googlemap(center=cen,maptype="roadmap",zoom=15,marker=data.frame(lon=2.294481,lat=48.85837)))
+
+
+# 연습 2
+
+quakes
+df<-head(quakes,100)
+cen<-c(mean(df$long),mean(df$lat))
+cen
+gc<-data.frame(lon=df$long,lat=df$lat)
+gc$lon <- ifelse(gc$lon>180,-(360-gc$lon),gc$lon)
+gc
+map<-get_googlemap(center=cen,scale=1,maptype="roadmap",zoom=4,markers=gc)
+ggmap(map,extent="device")
+
+
+#연습 3
+
+aa<-read.csv('c:/data/경기도_부천시_CCTV_20180607.csv',header=T,stringsAsFactors=FALSE)
+bb<-aa[grep('송내2동',aa$소재지지번주소),]
+cc<-data.frame(lon=bb$경도,lat=bb$위도)
+cen<-c(mean(bb$경도),mean(bb$위도))
+cen
+map<-get_googlemap(center=cen,maptype="roadmap",zoom=16)
+ggmap(map)
+cc
+library(ggplot2)
+ggmap(map)+geom_point(data=cc,aes(x=lon,y=lat),size=3,alpha=0.3,color='red')
+
+

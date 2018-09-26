@@ -1,0 +1,239 @@
+# 데이터 확인
+http://kosis.kr/index/index.do
+
+[문제167] 2016년_서울_주요구별_병원현황.csv file을 읽어 들인후 구별로 진료과목별 병원현황을 그룹막대형 그래프로 만드세요.
+
+seo<-read.csv('c:/data/2016년_서울_주요구별_병원현황.csv',header=T,stringsAsFactors=FALSE)
+head(seo)
+seo1<-colnames(seo)
+seo2<-seo[,c('표시과목')]
+seo2
+seo1
+seo1<-seo1[-1]
+aa<-seo
+colnames(aa)<-NULL
+aa<-aa[,-1]
+aa<-t(aa)
+aa
+colnames(aa)<-seo2
+rownames(aa)<-seo1
+max(aa)
+bb<-barplot(aa,beside=T,ylim=c(0,max(aa)+50),col=rainbow(length(rownames(aa))),main="2016년_서울_주요구_병원현황",axes=FALSE)
+text(x=bb,y=aa,pos=3,cex=0.3)
+legend("topright",rownames(aa),fill=rainbow(length(rownames(aa))),cex=0.5)
+
+[문제168] 강남구 과목별 병원수만 막대형 그래프를 생성하세요.(단 10개 1개로 표현하세요.)
+
+seo3<-seo[,c('표시과목','강남구')]
+seo4<-seo3[,c('강남구')]/10
+seo4
+cc<-barplot(seo3[,c('강남구')],names.arg=seo[,c('표시과목')],col='blue',ylim=c(0,max(seo3[,c('강남구')])+50),axes=FALSE,main='강남구 과목별 병원수')
+text(x=cc,y=seo3[,c('강남구')],seo3[,c('강남구')],pos=3)
+dd<-barplot(seo4,names.arg=seo[,c('표시과목')],col=rainbow(length(seo[,c('표시과목')])),ylim=c(0,max(seo4)+10),main='강남구 과목별 병원수 (단위: 10개당 1)',las=2)
+text(x=dd,y=seo4,seo4,pos=3)
+legend("topright",seo[,c('표시과목')],fill=rainbow(length(seo[,c('표시과목')])),cex=0.8)
+
+[문제169] 2016년_서울_주요구별_병원현황.csv file을 읽어 들인후 구별 진료과목에 해당하는 병원수를 
+막대형 그래프로 만드세요. 
+단 막대높이는 10개당 1개로 만드시고 막대그래프 프로그램은 한개를 가지고 모든 구별 막대그래프가 생성되도록 만드세요.
+
+graphics.off()
+par(mfrow=c(2,5))
+seo[,c('표시과목')]
+name<-colnames(seo)
+name<-name[-1]
+name
+seo1<-seo[,-1]
+seo1[,1]
+for(i in 1:length(colnames(seo))){
+      a<-barplot(seo1[,i]*0.1,names.arg=seo[,c('표시과목')],col=rainbow(length(seo[,c('표시과목')])),ylim=c(0,40),main=paste(name[i],'병원현황',' (단위: 10개당 1)'),cex.names=0.85)
+      text(x=a,y=seo1[,i]*0.1,seo1[,i]*0.1,cex=1,pos=3)
+      abline(h=seq(0,40,5),lty=3,lwd=0.2)
+     
+}
+
+
+# 선생님답 
+
+data1 <- read.csv("c:/data/2016년_서울_주요구별_병원현황.csv" , header=T)
+gu <- colnames(data1[2:11])
+par(mfrow=c(2,5))
+for(i in 1:10){
+  barplot(data1[1:9,i+1] * 0.1 ,
+          main=paste(gu[i],"병원현황"),
+          axes=F,
+          ylab="병원수(단위:10개)",
+          xlab="", 
+          cex.names=0.85,
+          las=2,
+          ylim=c(0,40), 
+          col=rainbow(8), 
+          border="white",
+          names.arg=data1$표시과목)
+  
+  axis(2,ylim=seq(0,40,10))
+  abline(h=seq(0,40,5),lty=2)
+}
+
+# read.csv 옵션 skip = skip할 줄을 정한 후 head를 그 다음줄로 바꾸는것이 가능, 다른것도 skip가능
+
+data1
+str(data1)
+head(data1)
+data1<-data1[,-1]
+data1<-t(data1)
+data1
+colnames(data1)<-data1[1,]
+data1<-data1[-1,]
+
+write.csv(data1,"c:/data/서울시_표시과목별_의원현황.csv",quote=FALSE)
+#write.csv : csv파일을 만들어 준다. option: quote -> FALSE하면 ""마크가 없어진다.
+data1<-read.csv("c:/data/서울시_표시과목별_의원현황.csv",header=T,stringsAsFactors=F)
+
+barplot(data1[,3],beside=T)
+
+# 연습
+
+buc<-read.csv('c:/data/부천시_표시과목별_의원현황.csv',header=F,stringsAsFactors=FALSE)
+buc
+colnames(buc)<-buc[2,]
+buc<-buc[-c(1:3),]
+buc<-buc[,-c(1:3)]
+name<-names(buc)
+buc<-as.numeric(buc)
+names(buc)<-name
+buc
+barplot(buc,ylim=c(0,100),col=rainbow(length(buc)),main='부천시 병원현황',las=2)
+
+
+# 애니매이션
+
+
+install.packages('animation')
+library(animation)
+
+myAni<-function(){
+                  for (i in 10:0){
+                                  plot.new()
+                                  rect(0,0,0,1,col="gold")
+                                  text(0.5,0.5,i,cex=10,col=rgb(0,0,1,0.5))
+                                  ani.pause()
+                  }
+}
+
+myAni()
+
+rgb(red,green,blue) # 빛의 3원색 0.5 : 투명도
+rgb 4번째 원수는 투명도를 의미한다.
+
+
+# 글자크기 작게 하기 - cex값을 변경하면 된다.
+
+myAni<-function(){
+                  for (i in 10:0){
+                                  plot.new()
+                                  rect(0,0,0,1,col="gold")
+                                  text(0.5,0.5,i,cex=i,col=rgb(0,0,1,0.5))
+                                  ani.pause()
+                  }
+}
+myAni()
+
+myAni <- function(){
+                    n<-ani.options("nmax") # 애니매이션 옵션 설정을 조회하는 함수
+                    x<-sample(1:n) # 난수 표현
+                    y<-sample(1:n) # 난수 표현 
+                    
+                    for(i in 1:n){
+                                  plot(x[i],y[i],cex=3,col="red",lwd=2,ylim=c(0,50),xlim=c(0,50))
+                                  ani.pause()
+                                  }
+                    }
+
+
+myAni
+
+ani.options : 애니매이션 옵션 설정을 조회하는 함수
+ani.options()
+
+interval: animation의 시간 간격(초단위) 기본값 1초
+nmax: animation 프레임을 만들기 위한 반복수(1초의 30개 프레임)스틸컷, 기본값 50
+ani.width() : 프레임 가로크기 (픽셀)
+ani.height() : 프레임 세로크기 (픽셀)
+
+ani.pause() : 주어진 시간동안 대기하고 현재화면을 지운다.
+ani.pause('interval;) 기본
+
+[문제 170] 모기업의 영업팀은 'A팀','B팀','C팀','D팀','E팀' 있습니다.
+           영업팀별 영업매출액은 90,45,70,67,85 있습니다.
+           이 자료를 이용해서 barplot,pie,pie3D 그래프를 생성하세요.
+
+library(jpeg)
+
+jpeg("c:/data/ex170_1.jpg",width=400,height=300,pointsize=12)
+a<-c('A팀','B팀','C팀','D팀','E팀')
+b<-c(90,45,70,67,85)
+c<-barplot(b,col=rainbow(5),ylab=c(0,120),main='영업팀별 영업매출액', names.arg=a,axes=FALSE)
+text(c,b,b,pos=3)
+dev.off
+
+jpeg("c:/data/ex170_2.jpg",width=400,height=300,pointsize=12)
+pie(b,main='영업팀별 영업매출액',labels=paste(a,':','\n',b),col=rainbow(5))
+dev.off()
+
+
+library(plotrix)
+jpeg("c:/data/ex170_3.jpg",width=400,height=300,pointsize=12)
+pie3D(b,main='영업팀별 영업매출액',labels=paste(a,':',b))
+dev.off()
+
+for (i in 1:3){
+  img<-paste("c:/data/ex170_",i,".jpg",sep="")
+  img<-readJPEG(img)
+  
+  plot.new()
+  rect(0,0,1,1,col="white",border="white") # 그래픽 프레임 영역 지정
+  rasterImage(img,0,0,1,1)
+  ani.pause() # 잠깐 대기한 후 화면 지우고 다시 출력
+}
+
+
+# rasterImage : 화면에 이미지 출력하는 함수
+  rasterImage(image, xleft, ybottom, xright, ytop)
+  image : 출력할 이미지 파일 이름
+  xleft : 이미지 출력 위치(x축 왼쪽)
+  xright : 이미지 출력 위치(x축 오른쪽)
+  ybottom : 이미지 출력 위치 (y축 하단)
+  ytop : 이미지 출력 위치(y축 상단)
+  
+  
+[문제171] 문제169번을 수행하면서 구이름.jpg형식으로 파일이 생성하도록 한후
+	  구이름.jpg를 이용해서 애니메이션을 수행하세요.
+
+seo[,c('표시과목')]
+name<-colnames(seo)
+name<-name[-1]
+name
+seo1<-seo[,-1]
+seo1[,1]
+for(i in 1:length(colnames(seo))){
+  jpeg(paste("c:/data/",name[i],".jpg",sep=""),width=400,height=300,pointsize=12)
+      a<-barplot(seo1[,i]*0.1,names.arg=seo[,c('표시과목')],col=rainbow(length(seo[,c('표시과목')])),ylim=c(0,40),main=paste(name[i],'병원현황',' (단위: 10개당 1)'),cex.names=0.85)
+      text(x=a,y=seo1[,i]*0.1,seo1[,i]*0.1,cex=1,pos=3)
+      abline(h=seq(0,40,5),lty=3,lwd=0.2)
+  dev.off()
+}
+
+for (i in 1:10){
+  img<-paste("c:/data/",name[i],".jpg",sep="")
+  img<-readJPEG(img)
+  
+  plot.new()
+  rect(0,0,1,1,col="white",border="white") 
+  rasterImage(img,0,0,1,1)
+  ani.pause() 
+}
+
+
+
+

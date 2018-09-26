@@ -1,0 +1,350 @@
+
+df <- read.csv("c:/data/exam.csv", header=TRUE, stringsAsFactors=F)
+library(ggplot2)
+
+ggplot(df,aes(x=subject,y=grade,group=name))+
+  geom_line()+ # plot (»êÁ¡µµ ±×·¡ÇÁ)
+  geom_point()
+
+ggplot(df,aes(x=subject,y=grade,color=name,group=name))+
+  geom_line()+ 
+  geom_point()
+
+
+
+
+[¹®Á¦179] 'Mata','Young' ÇÐ»ýÀÇ °ú¸ñÁ¡¼ö¸¦ ¼± °úÁ¡ ±×·¡ÇÁ·Î »ý¼ºÇÏ¼¼¿ä.
+
+a<-df[df$name==c('Mata')|df$name==c('Young'),]
+b<-df[df$name %in% c('Mata','Young'),]
+
+ggplot(a,aes(x=subject,y=grade,color=name,group=name))+
+  geom_line()+
+  geom_point()
+
+# ´Ü¾î¸¸ »Ì¾Æ³»±â 
+
+
+text1<- "RÀº ¿ÀÇÂ¼Ò½º·Î Åë°è, ±â°èÇÐ½À, ±ÝÀ¶, »ý¹°Á¤º¸ÇÐ, ±×·¡ÇÈ½º¿¡ ÀÌ¸£´Â ´Ù¾çÇÑ Åë°èÆÐÅ°Áö¸¦ °®Ãß°í ÀÖ´Â ÇÁ·Î±×·¥ÀÌ´Ù."
+strsplit(text1,split = " ")
+
+# ÇÏÁö¸¸ ¸í»ç¸¸ »Ì¾Æ³»°í ½Í´Ù¸é
+
+install.packages("rJava") # 1. JRE°¡ ¼³Ä¡ µÇ¾î ÀÖ¾î¾ß ÀÌ ÆÐÅ°Áö´Â »ç¿ëÀÌ °¡´ÉÇÏ´Ù.
+library(rJava)
+install.packages("KoNLP") # 2. rJava ¼³Ä¡ ÈÄ KoNLP¸¦ ¼³Ä¡ÇØ¾ß ÇÑ´Ù. ÇÑ±Û textminingÀ» ÆíÇÏ°Ô ÇÏ·Á°í ¸¸µç packagesÀÌ´Ù.
+library(KoNLP)
+
+extractNoun(text1) # ÇÑ±Û ¸í»ç¸¦ ÃßÃâÇÏ´Â ÇÔ¼ö : ÇÑ³ª´®ºÐ¼®±â
+
+
+# Ç°»çÁ¤º¸¸¦ ºÐ¼®ÇÏ°í ½Í´Ù¸é
+
+SimplePos09(text1) # 9°³ÀÇ Ç°»ç ÅÂ±×¸¦ ´Þ¾ÆÁÖ´Â ÇÔ¼ö
+
+
+SimplePos22(text1) # 22°³ÀÇ Ç°»ç ÅÂ±×¸¦ ´Þ¾ÆÁÖ´Â ÇÔ¼ö
+
+# ¸í»ç¸¸ ÃßÃâÇÏ±â
+
+text2<-SimplePos09(text1)
+# NÀÌ ÀÖ´Â °ªÀÌ ¸í»çÀÌ¹Ç·Î Á¢±Ù ÇÏ¿´´Ù.
+
+# ³»¹æ¹ý
+a<-grep("/N",text2,value=TRUE)
+
+for (i in 1:length(a)){
+    print(strsplit(a,split="/")[[i]][1])
+}
+
+#¼±»ý´Ô¹æ¹ý
+library(stringr)
+text_noun<-str_match(text2,'([A-Z°¡-ÆR]+)/N')
+as.vector(na.omit(text_noun[,2]))
+```
+C:\Users\stu\Documents\R\win-library\3.4\KoNLP_dic\current 
+
+.libPaths()
+
+# ´Ü¾îµî·Ï
+
+useSejongDic() # ´Ü¾îµéÀ» ºÒ·¯¿Â´Ù. ÀÚµ¿À¸·Î µî·Ï
+extractNoun(text1)
+
+#»çÀü¿¡ ¼öµ¿À¸·Î ´Ü¾î¸¦ µî·ÏÇÏ´Â ¹æ¹ý
+
+buildDictionary(ext_dic="sejong",user_dic=data.frame(c("¿ÀÇÂ¼Ò½º","±â°èÇÐ½À","»ý¹°Á¤º¸ÇÐ","´Ù¾çÇÑ"),c("ncn")),replace_usr_dic=T)
+extractNoun(text1)
+
+# ¾Æ±î »çÀüÀ» È®ÀÎÇÏ¸é ¸Ç ¸¶Áö¸·¿¡ ¹æ±Ý Ãß°¡ÇÑ ´Ü¾îµéÀÌ ÀÖ´Â °ÍÀ» È®ÀÎ ÇÒ ¼ö ÀÖ´Ù.
+
+# Áßº¹´Ü¾î Ã¼Å©
+
+text1<-"RÀº ¿ÀÇÂ¼Ò½º·Î Åë°è, ±â°èÇÐ½À, ±ÝÀ¶, »ý¹°Á¤º¸ÇÐ, ±×·¡ÇÈ½º¿¡ ÀÌ¸£´Â ´Ù¾çÇÑ Åë°èÆÐÅ°Áö¸¦ °®Ãß°í ÀÖ´Â ÇÁ·Î±×·¥ÀÌ´Ù.
+RÀº ¿ÀÇÂ¼Ò½º·Î Åë°è, ±â°èÇÐ½À, ±ÝÀ¶, »ý¹°Á¤º¸ÇÐ, ±×·¡ÇÈ½º¿¡ ÀÌ¸£´Â ´Ù¾çÇÑ Åë°èÆÐÅ°Áö¸¦ °®Ãß°í ÀÖ´Â ÇÁ·Î±×·¥ÀÌ´Ù.
+RÀº ¿ÀÇÂ¼Ò½º·Î Åë°è, ±â°èÇÐ½À, ±ÝÀ¶, »ý¹°Á¤º¸ÇÐ, ±×·¡ÇÈ½º¿¡ ÀÌ¸£´Â ´Ù¾çÇÑ Åë°èÆÐÅ°Áö¸¦ °®Ãß°í ÀÖ´Â ÇÁ·Î±×·¥ÀÌ´Ù."
+
+# ºóµµ¼ö È®ÀÎ
+
+table(extractNoun(text1))
+
+
+# ÇÑÁÙÇÑÁÙ ÀÐ¾î³¾ ¶§ »ç¿ëÇÏ´Â °Í
+
+aa<-readLines("c:/data/ÃëÀÓ»ç.txt")
+bb<-SimplePos09(aa)
+cc<-str_match(bb,'([°¡-ÆR]+)/N')
+dd<-cc[is.na(cc[,2])==FALSE,2]
+ee<-table(dd)
+pal<-brewer.pal(8,"Dark2") # »öÀ» ³Ö°í ½Í´Ù¸é ¹Ì¸® °ªÀ» ³Ö¾î¼­ »ç¿ëÇÑ´Ù.
+wordcloud(names(ee),freq=ee,scale=c(5,0.5),min.freq=2,random.order=F,rot.per=.1,colors=pal)
+
+noun1<-unlist(extractNoun(aa))
+word_cn<-table(noun1)
+word_cn
+
+# ¿öµå Å¬¶ó¿ìµå (wordcloud)
+¿É¼Çµé
+# names : Ãâ·ÂÇÒ ´Ü¾îµé
+# freq : ºóµµ¼ö
+# scale : ±ÛÀÚÀÇ Å©±â c(Å«°ª,ÀÛÀº°ª)
+# min.freq : ÃÖ¼Ò ºóµµ¼ö¸¦ ÁöÁ¤
+# max.words : ÀÌ°ª ÀÌ»óÀÇ ºóµµ¼ö¸é »èÁ¦
+# random.order : Ãâ·ÂµÇ´Â ¼ø¼­¸¦ ÀÓÀÇ·Î ÁöÁ¤
+# rot.per : ´Ü¾î ¹èÄ¡
+# colors : Ãâ·ÂµÉ ´Ü¾îµéÀÇ »ö»ó
+
+
+install.packages("wordcloud")
+library(wordcloud)
+
+pal<-brewer.pal(8,"Dark2") # »öÀ» ³Ö°í ½Í´Ù¸é ¹Ì¸® °ªÀ» ³Ö¾î¼­ »ç¿ëÇÑ´Ù. # library(RColorBrewer)¸¦ »ç¿ëÇØ¾ßÇÑ´Ù.
+wordcloud(names(word_cn),freq=word_cn,scale=c(5,0.5),min.freq=2,random.order=F,rot.per=.1,colors=pal)
+
+
+# wordcloud2
+
+install.packages("wordcloud2")
+library(wordcloud2)
+
+
+wordcloud2(word_cn,shape="pentagon")
+wordcloud2(word_cn,shape="star")
+
+
+[¹®Á¦180] seoul.txt ÆÄÀÏÀ» ´Ü¾îº° ºóµµ¼ö¸¦ È®ÀÎ ÇÏ½Ã°í wordcloud¸¦ ±×¸®¼¼¿ä.
+
+seo<-readLines('c:/data/seoul.txt') # ÆÄÀÏºÒ·¯¿À±â
+sim<-unlist(SimplePos09(seo)) # listÇü¿¡¼­ ºñ±³ÇÏ±â Èûµå¹Ç·Î unlistÇØ¼­ Ç¬´Ù.
+ple<-grep('/N',sim,value=TRUE) # /N ÀÌ ´Ü¾î°¡ ÀÖ´Â °ÍÀÌ¹Ç·Î ºÐ·ù
+zz<-c() # ºó º¤ÅÍ »ý¼º
+for (i in 1:length(ple)){ 
+    zz[i]<-print(strsplit(ple,split='/')[[i]][1])
+} # º¤ÅÍ¿¡ °ªµé ³Ö´Â´Ù.
+zz
+zz<-zz[-(grep('[[:digit:]]',zz))] # ¼ýÀÚ¸¦ Á¦¿Ü
+cn<-table(zz) # ºóµµ¼ö Ã¼Å©
+pal<-brewer.pal(8,"Dark2") # »ö±ò ³Ö±â
+cn2<-cn[cn>=2]
+wordcloud(names(cn),freq=cn,scale=c(2,0.1),min.freq=2,random.order = F,rot.per=.1,colors=pal)
+wordcloud2(cn2,shape="star")
+
+
+#´Ù¸¥¹æ¹ý
+
+sim1<-unlist(extractNoun(seo))
+ple1<-sim1[-(grep('[[:digit:]]',sim1))]
+cn1<-table(ple1)
+cn1
+cnn<-cn1[cn1>=2]
+wordcloud(names(cn1),freq=cn,scale=c(2,0.1),min.freq=2,random.order = F,rot.per=.1,colors=pal)
+wordcloud2(cnn,shape="star")
+
+# »ö È®ÀÎ
+
+library(RColorBrewer) 
+display.brewer.all() # ¸ðµç»ö È®ÀÎ °¡´ÉÇÏ´Ù.
+
+brewer.pal(9,"Set3")
+brewer.pal(ÆÈ·¹Æ® »öÀÇ ¼ö, ÆÈ·¹Æ® ÀÌ¸§)
+Dark2(8),Accent(8),Paired(12),pastel1(9),pastel2(8),Set1(9),Set2(8),Set3(12)
+
+# ¼öÁ¤ 
+
+# ¼öÁ¤ 
+yy<-Filter(function(x) {nchar(x) >= 2} ,zz)
+length(yy)
+yy<- gsub("¼­¿ï½Ã","", yy) # ÀÌ¹Ì ºó¹øÇÑ °ªÀÌ ³ª¿Ã²¨ °°Àº °Íµµ ¹ö¸°´Ù.
+yy<- gsub("Á¦¾È","",yy)
+yy<- gsub("¼­¿ï","",yy)
+yy<- gsub("¿äÃ»","",yy)
+yy<- gsub("O+","",yy)
+yy<- gsub("Á¦¾È","",yy)
+yy<- gsub ("ÀÌ","",yy)
+yy<- gsub ("¸»¾¸","",yy)
+yy<- gsub ("À»"),"",yy)
+
+write(yy,"c:/data/seoul_2.txt")
+yyy <- read.table("c:/data/seoul_2.txt")
+yyy
+
+zzz<-table(yyy)[table(yyy)>=2] # ºóµµ¼ö 2¹øÀÌ»ó
+
+library(RColorBrewer) 
+
+palete <- brewer.pal(9,"Set3") 
+wordcloud(names(zzz),
+          freq=zzz,
+          scale=c(2,0.5),
+          random.order=F,
+          random.color=T,
+          colors=palete)
+
+
+# ÆÄÀÏ·Î µÈ °ª »çÀüÀ¸·Î Ãß°¡ÇÏ±â
+
+useSejongDic()
+buildDictionary(ext_dic="sejong",
+                user_dic=data.frame(readLines("c:/data/Á¦ÁÖµµ°ü±¤Áö.txt"),"ncn"),replace_usr_dic=T)
+
+
+
+
+
+buildDictionary(ext_dic="sejong",
+                user_dic=data.frame(c('¿Ã·¹±æ'),"ncn"),replace_usr_dic=T)
+useSejongDic()
+data1<-readLines("c:/data/jeju.txt")
+data2<-unlist(extractNoun(data1))
+head(data2)
+data3 <- Filter(function(x) {nchar(x) >= 2} ,data2)
+length(data3)
+data4<-grep("-",data3,value=TRUE)
+gsub("-"," ",data3)
+data4<-gsub("-"," ",data4)
+data4<-unlist(extractNoun(data4))
+data4 # - ¾ø¾Ø°Å
+data5<-grep("&",data3,value=TRUE) # & Á¦°Å
+data5<-gsub(","," ",data5)
+data5<-gsub("/"," ",data5)
+data5<-gsub("&"," ",data5)
+data5<-gsub("-"," ",data5)
+data5<-unlist(extractNoun(data5))
+data5
+data<-c(data3,data4,data5)
+data
+data<-data[-grep("-",data)]
+data<-data[-grep("&",data)]
+data
+grep('[[:digit:]]',data,value=TRUE)
+grep('1100',data)
+data<-gsub("1100µµ·Î","Ãµ¹éµµ·Î",data)
+data<-gsub("1100°íÁö","Ãµ¹é°íÁö",data)
+data[grep('1112',data)]<-'Ãµ¹é½ÊÀÌµµ·Î'
+a<-unique(data)
+data[grep("¿Ã·¹",data)]<-c("¿Ã·¹±æ")
+data[grep("¿ìµµ",data)]<-c("¿ìµµ")
+data[grep("°øÇ×",data)]<-c("°øÇ×")
+data<-data[-grep('[[:digit:]]',data)]
+data7<-grep("/",data,value=T) # / Á¦°Å
+data7<-gsub("/"," ",data7)
+data7<-gsub(","," ",data7)
+data7<-unlist(extractNoun(data7))
+grep(",",data,value=T)
+data[grep("Áß¹®°ü±¤",data)]<-c("Áß¹®°ü±¤´ÜÁö")
+data<-c(data,data7)
+data<-data[-grep("/",data)]
+data<-data[-grep(",",data)]
+data<-data[-grep("¼÷",data)]
+grep("Á¦ÁÖ",data,value=T)
+data[grep("¸¶¹æ",data)]<-"¸¶¹æ¸ñÁö"
+data[grep("¾ÆÄí",data,value=T)]<-"¾ÆÄí¾ÆÇÃ¶ó³Ý"
+data<-data[-grep("Á¦ÁÖ",data)]
+length(data)
+data<-Filter(function(x) {nchar(x) >= 2} ,data)
+data<-data[-grep("Ææ¼Ç",data)]
+data<-data[-grep("½Ä´ç",data)]
+data<-data[-grep("½É",data,value=T)]
+grep("¿©Çà",data,value=T)
+data[grep("¿¡ÄÚ",data)]<-"¿¡ÄÚ·£µå"
+data<-data[-grep("¿©Çà",data)]
+data<-sort(data)
+air<-data[grep("°øÇ×",data)]
+data[grep("±â¾ÏÀý",data)]<-"±â¾ÏÀýº®"
+ba<-data[grep("±â¾ÏÀý",data)]
+data[grep("³Ø½¼",data)]<-"³Ø½¼ÄÄÇ»ÅÍ¹Ú¹°°ü"
+nexon<-data[grep("³Ø½¼",data)]
+data[grep('^ÇØ¾È$',data)]<-'¿ë¸Ó¸®ÇØ¾È'
+grep('¿ë¸Ó¸®',data,value=T)
+data<-c(data,'¿À¼³·Ï','¿ë¸Ó¸®ÇØ¾È')
+data<-data[-grep('¿À¼³·Ï¿ë¸Ó¸®ÇØ¾È',data)]
+data[grep('¿ë¸Ó¸®',data)]<-'¿ë¸Ó¸®ÇØ¾È'
+data[grep('¾Ö¿ù',data)]<-'¾Ö¿ù°ü±¤Áö'
+data[grep('Ç³Â÷',data)]<-'Ç³Â÷'
+data[grep('µ¼',data)]<-'µ¼º£µ·'
+data[grep('°ø·æ',data)]<-'°ø·æ·£µå'
+data[grep('ÇùÀç',data)]<-'ÇùÀçÇØ¼ö¿åÀå'
+data[grep('ÇÑ¸²',data)]<-'ÇÑ¸²°ø¿ø'
+data[grep('À¯¸®',data)]<-'À¯¸®ÀÇ¼º'
+data[grep('¼³',data)]<-'¿À¼³·Ï'
+data[grep('½Åºñ',data)]<-'µµ±úºñµµ·Î'
+data[grep('±ú',data)]<-'µµ±úºñµµ·Î'
+data<-sort(data)
+data[grep('Áß¹®',data,value=T)]<-'Áß¹®°ü±¤´ÜÁö'
+data[grep('ÀÏÃâ',data)]<-'ÀÏÃâ·£µå'
+data[grep('¼º',data)]<-'¼º»êÀÏÃâºÀ'
+data[grep('ÇÑ¶ó',data)]<-'ÇÑ¶ó»ê'
+data[grep('¼ö¿ùºÀ',data)]<-'¼ö¿ùºÀ'
+data[grep('ÈÖ´Ð½º',data)]<-'ÈÖ´Ð½º¾ÆÀÏ·£µå'
+data<-data[-grep('¼­±ÍÆ÷',data)]
+data<-data[-c(1:100)]
+data[grep('Áß¹®',data)]<-'Áß¹®°ü±¤´ÜÁö'
+
+data[grep('ÃµÁ¦',data)]<-'ÃµÁ¦¿¬ÆøÆ÷'
+data[grep('ÃµÁö',data)]<-'ÃµÁö¿¬ÆøÆ÷'
+data<-data[-grep('¿¬Æø',data)]
+data[grep('Á¤¹æ',data)]<-'Á¤¹æÆøÆ÷'
+data[grep('Æ®¸¯',data)]<-'Æ®¸¯¾ÆÆ®¹ÂÁö¾ö'
+data[grep('º£¾î',data)]<-'Å×µðº£¾î¹ÂÁö¾ö'
+data[grep('¿À¸§',data)]<-'¿À¸§'
+data[grep('µ¼º£',data)]<-'µ¼º£³¶°ñ'
+data[grep('»ê¹æ',data)]<-'»ê¹æ»ê'
+data[grep('¼Û¾Ç',data)]<-'¼Û¾Ç»ê'
+data[grep('¿Üµ¹',data)]<-'¿Üµ¹°³'
+data[grep('ÇÔ´ö',data)]<-'ÇÔ´öÇØ¼ö¿åÀå'
+data[grep('Ä«¸á',data)]<-'Ä«¸á¸®¾ÆÈú'
+data[grep('µ¿¹é',data)]<-'Ä«¸á¸®¾ÆÈú'
+data[grep('¹Ì·Î',data)]<-'±è³ç¹Ì·Î°ø¿ø'
+data[grep('±è³ç',data)]<-'±è³ç¹Ì·Î°ø¿ø'
+data[grep('¼è¼Ò',data)]<-'¼è¼Ò±ï'
+data[grep('ÇùÁ¦',data)]<-'ÇùÀçÇØ¼ö¿åÀå'
+data[grep('¼·Áö',data)]<-'¼·ÁöÄÚÁö'
+data[grep('¿ëµÎ',data)]<-'¿ëµÎ¾Ï'
+data[grep('¿ë¿¬',data)]<-'¿ë¿¬±¸¸§´Ù¸®'
+data[grep('¾ÆÄí¾Æ',data)]<-'¾ÆÄí¾ÆÇÃ¶ó³Ý'
+data[grep('ÀÌÁß',data)]<-'ÀÌÁß¼·°Å¸®'
+data[grep('µå¶óÀÌºê',data)]<-'µå¶óÀÌºê'
+jeju1<-readLines("c:/data/jejua.txt")
+total<-data[data %in% jeju1]
+wordcloud2(table(total),shape='star')
+
+
+#Áöµµ
+
+library(ggmap)
+names<-unique(total)
+da<-data.frame(lon=c(),lat=c())
+for (i in 2:length(names)){
+              da[i,]<-geocode(enc2utf8(names[i]))
+                
+}
+da<-na.omit(da)
+da<-da[-c(6,26),]
+names<-names[-c(6,23,27)]
+cen<-c(mean(da$lon),mean(da$lat))
+map<-get_googlemap(center=cen,maptype="roadmap",zoom=11,markers=da) 
+ggmap(map,extent="device") 
+gmap<-ggmap(map,extent="device")
+gmap+geom_text(data=da,aes(x=lon,y=lat),size=3,label=names)
+
+

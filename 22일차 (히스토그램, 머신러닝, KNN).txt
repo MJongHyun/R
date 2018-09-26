@@ -1,0 +1,303 @@
+
+[문제182] noise.txt 데이터를 시각화 하세요.
+
+
+
+# 히스토그램으로 해야하는 이유 
+# 1. 데이터가 연속형으로 되어있다.
+# 2. 구간에 따른 값으로 구해야한다. (도수분포표를 이용한다)
+
+a<-scan()
+noise<-a
+
+max(noise) # 77.1
+min(noise) # 44
+stem(noise) # 줄기 잎 그래프 
+length(noise) # 50
+
+hi<-cut(noise,breaks = seq(40,80,by=8),right=FALSE,
+        labels=c('40이상 48미만','48이상 56미만','56이상 64미만','64이상 72미만','72이상 80미만')) # 구간 정하고, 입력
+
+hi.table<-table(hi) # 테이블 생성
+hi.table
+hi.prop<-prop.table(hi.table) # 비율 확인
+hi.prop
+
+hist(noise,breaks=seq(40,80,by=8),right=FALSE,col=rainbow(5),labels=TRUE,
+     ylim=c(0,35),main="",axes=FALSE,ylab="",xlab="") # 히스토그램 생성 
+
+legend("topright",c('40이상 48미만','48이상 56미만','56이상 64미만','64이상 72미만','72이상 80미만'),
+       cex=0.5,fill=rainbow(5),title='단위: 8')
+
+
+# 값 다르게 불러오는 방법
+
+no<-read.table('c:/data/noise.txt')
+no<-as.matrix(no)
+dim(no)<-c(50,1)
+no<-sort(unlist(no))
+
+hi1<-cut(noise,breaks = seq(40,80,by=10),right=FALSE,
+        labels=c('40이상 50미만','50이상 60미만','60이상 70미만','70이상 80미만')) # 구간 정하고, 입력
+
+hi1.table<-table(hi1) # 테이블 생성
+hi1.table
+hi1.prop<-prop.table(hi1.table) # 비율 확인
+hi1.prop
+
+hist(noise,breaks=seq(40,80,by=10),right=FALSE,col=rainbow(4),labels=TRUE,
+     ylim=c(0,35),main="",axes=FALSE,ylab="",xlab="")
+
+
+
+
+[문제183] noise.txt 데이터에서 25%의 기준 데이터 75%의 기준 데이터를 찾으세요.
+
+
+
+hist(noise,breaks=seq(40,80,by=10),right=FALSE,col=rainbow(4),labels=TRUE,
+     ylim=c(0,35),main="",axes=FALSE,ylab="",xlab="") # 히스토그램 생성 
+
+hi1<-cut(noise,breaks = seq(40,80,by=10),right=FALSE,
+        labels=c('40이상 50미만','50이상 60미만','60이상 70미만','70이상 80미만'))
+
+hi1.table<-table(hi1)
+hi1.table
+
+hi1.prop<-prop.table(hi1.table)
+hi1.prop
+
+s_noise<-sort(noise)
+
+s_noise[s_noise<50]
+s_noise[s_noise>=60&s_noise<70]
+
+sort(noise[hi1=='40이상 50미만'])
+sort(noise[hi1=='60이상 70미만'])
+
+qu_no<-quantile(noise)
+max(noise[noise<=qu_no[names(qu_no)=='25%']])
+max(noise[noise<=qu_no[names(qu_no)=='75%']])
+
+
+s_noise[50/4+1] # 12.5 + 1 
+s_noise[(50/4)*3] # 37.5
+
+
+s_noise[s_noise==s_noise[13]]
+s_noise[s_noise==s_noise[37]]
+
+quantile(noise, probs=c(0.25,0.75))
+
+
+
+# 히스토그램은 자료가 모여있는 위치나 자료의 분포에 관한 대략적인 정보를 한눈에 파악할 수 있는
+# 장점이 있지만, 구체적인 수치 정보를 쉽게 알아 볼 수 없는 단점이 있다.
+# 따라서 최소값, 제1사분위수, 중위수, 제3사분위수, 최대값의 다섯가지 요약 수치등을 이용한 
+# 상자그림 (boxplot)으로 나타낼 수 있다.
+
+
+boxplot(noise)
+boxplot(noise,horizontal=T)
+
+mean(noise) # 평균
+median(noise) # 중위수
+var(noise) # 분산
+sd(noise) # 표준편차
+max(noise) # 최대값
+min(noise) # 최소값
+
+
+quantile(noise,type=2) # 반올림 차이이다.
+quantile(noise) # 반올림 차이
+
+summary(noise)
+
+# 위에서 나온 값과 데이터 값을 확인해야한다.
+
+q1<-ceiling(length(noise)*0.25)
+s_noise[q1]
+
+q3<-ceiling(length(noise)*0.75)
+s_noise[q3]
+
+quantile(noise,type=2)["25%"]
+quantile(noise,type=2)["75%"]
+
+# 중위수는 짝수냐 홀수냐의 따라 값이 달라진다.
+
+(s_noise[length(s_noise)/2]+s_noise[length(s_noise)/2+1])/2
+
+median(s_noise)
+
+a<-c()
+b<-c()
+
+for (i in 1:length(s_noise)){
+  if(i==length(s_noise)/2 | i==(length(s_noise)/2)+1){
+    a[i]<-s_noise[i]
+    a<-a[!is.na(a)]
+  }
+  b<-sum(a)/2
+}
+
+# 중위수 구하는 방법 (median 없이)
+
+ifelse(length(s_noise)%%2==1,s_noise[length(s_noise)/2],(s_noise[length(s_noise)/2]+s_noise[length(s_noise)/2+1])/2)
+
+# 사분위수 범위 (inter quantile range) - box plot에서 이상치 값이 아닌 값들
+
+# IQR = 제3사분위수 - 제1사분위수 
+
+iqr = s_noise[q3]-s_noise[q1]
+
+# lower fence : boxplot 에서 사분위수 범위의 가장 왼쪽 값
+
+lf<-s_noise[q1]-1.5*iqr
+lf # 45.1
+
+# upper fence : boxplot 에서 사분위수 범위의 가장 오른쪽 값
+
+uf<-s_noise[q3]+1.5*iqr
+uf # 76.3
+
+# 각 왼쪽 / 오른쪽 선은 lower fence중 에서 가장 작은값, upper fence중에서 가장 큰 값을 의미 한다.
+
+# IQR 바로 구하는 함수도 있다.
+
+IQR(s_noise,type=2)
+
+a<-min(s_noise[lf<s_noise]) # 사분위 수 범위 중 가장 작은 값
+b<-max(s_noise[s_noise<uf]) # 사분위 수 범위 중 가장 큰 값
+c<-s_noise[uf<s_noise] # 이상치 큰값
+d<-s_noise[lf>s_noise] # 이상치 작은값
+
+# 그래프 값 만들기
+
+total<-c(d,a,s_noise[q1],median(s_noise),s_noise[q3],b,c) # 각각의 값을 벡터로 만든다.
+
+total
+aa<-boxplot(noise,horizontal=T)
+text(total,0.95,labels=total,cex=0.7)
+
+
+
+# 선생님 답
+
+
+a<-min(s_noise[lf<s_noise]) 
+b<-max(s_noise[s_noise<uf]) 
+
+text(quantile(noise,0.25,type=2)+0.5,1,labels=quantile(noise,0.25,type=2),col="blue")
+text(quantile(noise,0.5,type=2)+0.5,1,labels=quantile(noise,0.5,type=2),col="blue")
+text(quantile(noise,0.75,type=2)+0.5,1,labels=quantile(noise,0.75,type=2),col="blue")
+text(a+0.5,1,labels=min(noise[noise>=lf&noise<=uf]),col="blue")
+text(b+0.5,1,labels=max(noise[noise>=lf&noise<=uf]),col="blue")
+
+
+
+# 머신러닝 (machine learning)
+
+- 인공지능(artificial intelligence(AI), 기계로 만들어진 지능)의 한 분야로서 컴퓨터가 학습할 수 있도록하는 
+  알고리즘과 기술을 개발하는 분야 
+
+- 통계, 데이터 과학, 컴퓨터 과학 
+- 분류(classification) : KNN, 나이브베이즈, 결정트리
+- 패턴감지(pattern detection) : 연관규칙
+- 수치예측(numeric prediction) : 회귀분석
+- 군집화 (clustering) k평균 군집화
+
+# learning
+
+- supervised learning (지도학습)
+
+  레이블이 달려 있는 즉, 정해져있는 데이터를 가지고 학습,
+  트레이닝SET을 가지고 학습, 이미지(개, 고양이), 시험성적예측, 
+  회귀 : 시험점수에 대한 예측
+  binary classification : 합격, 불합격
+  multi label classification : A,B,C,D,F 학점
+  
+- unsupervised learning (비지도학습)
+
+  레이블이 없는 데이터, 직접 데이터를 가지고 학습
+  유사한 뉴스를 그룹으로 모은다.
+  비슷한 단어들을 모은다.
+  
+# KNN (K Nearest Neighbors) : 최근접이웃 <거리계산>
+
+사회적인 관계를 관찰해 보면 
+- 대략적으로 비슷한 사람끼리 모이는 성질
+- 비슷한 취향의 사람끼리 모여서 동호회를 만들고 
+- 비슷한 부류의 계층의 사람끼리 친분을 맺기도 한다.
+
+공간적인 관계를 관찰해 보면 
+- 가구점이 모이는 상가지역이 따로 형성이 되어 있다.
+- 한약방이 밀집되어 있는 지역이 따로 모여 있는 경우가 많다.
+
+
+
+like<-read.csv('c:/data/like.csv',stringsAsFactors = FALSE,header=T)
+str(like)
+
+colnames(like)<-c('talk','book','travel','school','tall','skin','muscle','label')
+
+test<-data.frame(talk=70,book=50,travel=30,school=70,tall=70,skin=40,muscle=50)
+
+# 데이터가 많으면 많을 수록 알고리즘을 잘만들 수 있다.
+
+install.packages('class') # 알고리즘 패키지
+library(class)
+
+train<-like[,-8]
+group<-like[,8]
+# K값의 따라 의사결정이 바뀔 수가 있다
+knn(train,test,group,k=1)
+knn(train,test,group,k=2)
+knn(train,test,group,k=3)
+knn(train,test,group,k=4)
+knn(train,test,group,k=5)
+```
+
+
+knn(train,test,group,k=3,prob=TRUE)
+
+
+[문제184] food.csv 데이터를 기준으로 토마토의 sweetness은 6,  crunchiness은 4 입니다. 분류를 하세요.
+
+
+# 비교하는 값들 끼리만 비교를 하고 knn 을 구하면 된다.
+
+food<-read.csv('c:/data/food.csv',stringsAsFactors = FALSE, header=T)
+
+test<-data.frame(ingredient='tomato',sweetness=6,crunchiness=4)
+test
+train<-food[,2:3]
+train
+group<-food[,4]
+group
+library(class)
+food
+knn(train,test[,2:3],group,k=3,prob=TRUE)
+
+
+library(ggplot2)
+
+ggplot(data=food,aes(x=sweetness,y=crunchiness))+
+  labs(title="What is tomato class?")+
+  geom_point(aes(color=class, shape=class),size=6)+ # 여기서 class는 food의 column 이름인데 자동으로 unique 로 바꾼다.
+  geom_text(aes(label=ingredient), vjust=-1, size = 5)+
+  geom_point(data = test, colour = "black", size=6)+
+  geom_text(data=test,aes(label=ingredient),vjust = -2,size=5,fontface = "bold")
+
+
+
+
+
+data.frame(ingredient=food[,1],distinct = sqrt((food[,2] - test[,2])^2 + (food[,3] - test[,3])^2))
+
+
+
+
+
+
+

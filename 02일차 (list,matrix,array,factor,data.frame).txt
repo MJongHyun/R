@@ -1,0 +1,639 @@
+# matrix (행렬)
+
+- 벡터처럼 한가지 유형의 스칼라 값만 저장한다. (단일데이터저장)
+- matrix함수를 이용해서 행렬을 생성한다.
+- 행과 열을 지정
+
+x<-c(1:9) -- 1차원배열
+
+> x<-matrix(c(1:9),nrow=3)
+> x
+     [,1] [,2] [,3]
+[1,]    1    4    7
+[2,]    2    5    8
+[3,]    3    6    9
+
+# nrow : 행값 (갯수) ncol: 열값 (갯수)
+
+x<-matrix(c(1:9),ncol=3)
+> x
+     [,1] [,2] [,3]
+[1,]    1    4    7
+[2,]    2    5    8
+[3,]    3    6    9
+x<-matrix(c(1:9),nrow=3,ncol=3)
+> x
+     [,1] [,2] [,3]
+[1,]    1    4    7
+[2,]    2    5    8
+[3,]    3    6    9
+x<-matrix(c(1:9),ncol=1)
+> x
+      [,1]
+ [1,]    1
+ [2,]    2
+ [3,]    3
+ [4,]    4
+ [5,]    5
+ [6,]    6
+ [7,]    7
+ [8,]    8
+ [9,]    9
+> 
+# nrow(x) <소문자> : 행의수가 나온다.
+# ncol(x) <소문자> : 열의수가 나온다.
+# dim(x) <소문자> : 행,열의수 
+
+x<-matrix(c(1:9),nrow=3) -- 열기준으로 출력이 된다.
+> nrow(x)
+[1] 3
+> ncol(x)
+[1] 3
+> dim(x)
+[1] 3 3
+
+x<-matrix(c(1:9),nrow=3,byrow=True) -- 행부터 값을 채운다.
+> x
+     [,1] [,2] [,3]
+[1,]    1    2    3
+[2,]    4    5    6
+[3,]    7    8    9
+x<-matrix(c(1:9),nrow=3,byrow=False) -- 열부터 값을 채운다.
+
+# byrow - 행부터 값을 채울지 열부터 값을 채울지 결정
+
+x<-matrix(c(1,2,3,4),nrow=2,byrow=TRUE,dimnames=list(c("row1","row2"),c("col1","col2")))
+> x
+     col1 col2
+row1    1    2
+row2    3    4
+
+# dimnames - 행과 열에 이름을 표현해야할 때 사용한다. list를 통해 만든다.
+
+dimnames(x) <- list(c("a1","a2","a3"),c("c1","c2","c3"))
+> x
+   c1 c2 c3
+a1  1  4  7
+a2  2  5  8
+a3  3  6  9
+
+
+# rownames - 행의 이름 , colnames -  열 이름, 두개다 수정이 가능하다.
+
+> rownames(x)
+[1] "a1" "a2" "a3"
+> colnames(x)
+[1] "c1" "c2" "c3"
+rownames(x) <-c("r1","r2","r3") 
+colnames(x) <-c("b1","b2","b3") 
+> rownames(x)
+[1] "r1" "r2" "r3"
+> colnames(x)
+[1] "b1" "b2" "b3"
+> x
+   b1 b2 b3
+r1  1  4  7
+r2  2  5  8
+r3  3  6  9
+
+cells<-c(1:9)
+rname<-c("r1","r2","r3")
+cname<-c("c1","c2","c3")
+(x<-matrix(cells,nrow=3,byrow=TRUE,dimnames=list(rname,cname))) - byrow: 값을 행으로부터 들어가게 함
+> (x<-matrix(cells,nrow=3,byrow=TRUE,dimnames=list(rname,cname)))
+   c1 c2 c3
+r1  1  2  3
+r2  4  5  6
+r3  7  8  9
+
+# 괄호를 맨앞에 맨뒤에 하나씩 하면 바로 출력이 된다. 
+
+> class(x) - 자료형 종류
+[1] "matrix"
+> mode(x) - 자료형 안에 있는 값 (type)
+[1] "numeric"
+
+# 행렬이름[행인덱스,열인덱스] - 행렬에 따른 값이 나온다.
+
+> x[1,1]
+[1] 1
+> x[2,1]
+[1] 4
+> x[1,] - 1행 전체값
+c1 c2 c3 
+ 1  2  3 
+> x[,2] - 2열 전체값
+r1 r2 r3 
+ 2  5  8 
+> x[1,-2]
+c1 c3  - 1행에서 2열값을 뺀 나머지 값
+ 1  3 
+> x[c(1,3),c(1,2)] - 1행 3행값, 1열 2열값 추출
+   c1 c2
+r1  1  2
+r3  7  8
+> x["r1",] - 행이름으로 추출
+c1 c2 c3 
+ 1  2  3 
+> x[,"c2"] - 열이름으로 추출
+r1 r2 r3 
+ 2  5  8
+
+# 행렬 수정 
+
+> x[1,1]<-10 
+> x
+   c1 c2 c3
+r1 10  2  3
+r2  4  5  6
+r3  7  8  9
+
+# 행렬의 연산
+
+x <- matrix(c(1:4),ncol=2)
+> x+10
+     [,1] [,2]
+[1,]   11   13
+[2,]   12   14
+> x-10
+     [,1] [,2]
+[1,]   -9   -7
+[2,]   -8   -6
+> 10-x
+     [,1] [,2]
+[1,]    9    7
+[2,]    8    6
+> x/2
+     [,1] [,2]
+[1,]  0.5  1.5
+[2,]  1.0  2.0
+> x*10
+     [,1] [,2]
+[1,]   10   30
+[2,]   20   40
+> x+x
+     [,1] [,2]
+[1,]    2    6
+[2,]    4    8
+> x-x
+     [,1] [,2]
+[1,]    0    0
+[2,]    0    0
+> x/x
+     [,1] [,2]
+[1,]    1    1
+[2,]    1    1
+> x*x -- 일반적인 행렬의 곱으로 나오는것이 아니라 각각 인덱스에 따른 곱으로 나온다.
+     [,1] [,2]
+[1,]    1    9
+[2,]    4   16
+> x%*%x -- 실제 행렬의 곱
+     [,1] [,2] 
+[1,]    7   15
+[2,]   10   22
+
+# t(x) - 전치행렬 ( 행과 열의 위치를 바꾸는 행렬) transpose 1행2열 <-> 2행1열
+     [,1] [,2]
+[1,]    1    2
+[2,]    3    4
+
+# solve(x) - 역행렬
+# x %*% solve(x) - 단위행렬
+
+> x<- matrix(c(1:6),ncol=3)
+> x
+     [,1] [,2] [,3]
+[1,]    1    3    5
+[2,]    2    4    6
+> dim(x)
+[1] 2 3
+> dim(x)<-c(3,2) -- 행과 열을 바꾸고 싶을 땐 dim 함수를 사용한다.
+> x오후 1:12 2018-07-24
+     [,1] [,2]
+[1,]    1    4
+[2,]    2    5
+[3,]    3    6
+
+
+x<-matrix(c(1:9),nrow=3)
+y<-matrix(c(1:9),nrow=3)
+cbind(x,y) - 열을 기준으로 행렬을 합쳐준다. - 갯수에 상관이없다.
+rbind(x,y) - 행을 기준으로 행렬을 합쳐준다. - 갯수에 상관이없다.
+
+# array (배열)
+
+- 같은 데이터 타입을 갖는 3차원 배열구조
+- matrix 2차원 행렬, array 3차원 행렬이다.
+- array 함수를 이용해서 배열생성
+
+x<-array(c(1:6),dim=c(2,3))
+> x
+     [,1] [,2] [,3]
+[1,]    1    3    5
+[2,]    2    4    6
+
+x<-array(c(1:24),dim=c(2,3,4))
+x
+, , 1
+
+     [,1] [,2] [,3]
+[1,]    1    3    5
+[2,]    2    4    6
+
+, , 2
+
+     [,1] [,2] [,3]
+[1,]    7    9   11
+[2,]    8   10   12
+
+, , 3
+
+     [,1] [,2] [,3]
+[1,]   13   15   17
+[2,]   14   16   18
+
+, , 4
+
+     [,1] [,2] [,3]
+[1,]   19   21   23
+[2,]   20   22   24
+
+x[1,1,] - 1행 1열 값들만 뽑아낸다.
+[1]  1  7 13 19
+
+x[1,,]
+> x[1,,] - 각 1행값들 추출
+     [,1] [,2] [,3] [,4]
+[1,]    1    7   13   19
+[2,]    3    9   15   21
+[3,]    5   11   17   23
+
+x[,,4] - 한면 추출
+> x[,,4]
+     [,1] [,2] [,3]
+[1,]   19   21   23
+[2,]   20   22   24
+
+dimnames(x)
+dimnames(x)<-list(c("r1","r2"),c("c1","c2","c3")) - 이름추가
+> x
+, , 1
+
+   c1 c2 c3
+r1  1  3  5
+r2  2  4  6
+
+, , 2
+
+   c1 c2 c3
+r1  7  9 11
+r2  8 10 12
+
+, , 3
+
+   c1 c2 c3
+r1 13 15 17
+r2 14 16 18
+
+, , 4
+
+   c1 c2 c3
+r1 19 21 23
+r2 20 22 24
+
+rownames(x) - 행이름
+colnames(x) - 열이름
+
+> class(x)
+[1] "array"
+
+> mode(x)
+[1] "numeric"
+
+> str(x)
+ int [1:2, 1:3, 1:4] 1 2 3 4 5 6 7 8 9 10 ...
+ - attr(*, "dimnames")=List of 3
+  ..$ : chr [1:2] "r1" "r2"
+  ..$ : chr [1:3] "c1" "c2" "c3"
+  ..$ : NULL
+is.matrix(x)
+[1] FALSE
+is.array(x)
+[1] TRUE
+
+# factor(팩터)
+
+- 범주형 : 데이터를 미리 정해진 유형으로 분류 (예) employees table 에서 job_id, department_id
+- level : A,B,C,D,E , "좋음","보통","나쁨"
+- 종류 : 순서형(ordinal), 명목형(nominal)
+- 순서형(ordinal) : 데이터간 순서를 둘 수 있는 경우 (예) A,B,C,D
+- 명목형(nominal) : 데이터간 크기 비교가 불가능한 경우 (예) 남,여 
+
+x <- factor("좋음",c("좋음","보통","나쁨")) -- 첫 값은 레벨이 있는 값이 아니면 오류가 난다.
+> x
+[1] 좋음
+Levels: 좋음 보통 나쁨
+
+> str(x)
+ Factor w/ 3 levels "좋음","보통",..: 1
+> mode(x) -- level때문에 숫자형으로 읽는것이라고 생각함
+[1] "numeric"
+> class(x)
+[1] "factor"
+
+# ordered : 순서를 나타내는 함수
+
+y<- factor("좋음",c("좋음","보통","나쁨"),ordered=TRUE)
+> y
+[1] 좋음
+Levels: 좋음 < 보통 < 나쁨
+
+> str(y)
+ Ord.factor w/ 3 levels "좋음"<"보통"<..: 1
+
+> mode(y)
+[1] "numeric"
+
+> class(y)
+[1] "ordered" "factor" -- ordered를 사용한 경우 class에도 나타난다.
+
+# factor는 연산작업이 불가능하다. 
+
+# nlevels(y) - 레벨의 갯수를 의미한다.
+# levels(y) - 레벨의 목록을 의미한다.
+
+levels(y)[1]
+[1] "좋음"
+levels(y)[2]
+[1] "보통"
+levels(y)[3]
+[1] "나쁨"
+
+# 수정 
+
+levels(y)<-c("good","normal","bad")
+> y
+[1] good
+Levels: good < normal < bad
+
+# factor, ordered 확인방법
+
+> is.factor(y)
+[1] TRUE
+> is.factor(x)
+[1] TRUE
+> is.ordered(y)
+[1] TRUE
+> is.ordered(x)
+[1] FALSE
+
+gender<-factor(c("male","male","female"),c("male","female"))
+gender
+
+[1] a b
+Levels: a < b < c
+> x<-ordered(c("a","b"),c("a","b","c"))
+> x
+[1] a b
+Levels: a < b < c
+> is.ordered(x)
+[1] TRUE
+
+x<-factor(c("large","medium","small","small","medium"),levels=c("small","medium","large"))
+
+x<-append(x,"tiny",after=6) 
+> x
+[1] "3"    "2"    "1"    "1"    "2"    "tiny" "tiny"
+
+# 해결방법- as.vector : 형변환 함수, vector 형식으로 바꿔주는 함수
+
+x<-as.vector(x) - 형변환을 한 후
+x<-append(x,"tiny",after=6) - 값을 추가한다.
+> x
+[1] "large"  "medium" "small"  "small"  "medium" "tiny"  
+x<-as.factor(x) - 다시 factor로 변환
+[1] large  medium small  small  medium tiny  
+Levels: large medium small tiny
+
+x<- as.vector(x)
+x<-factor(x,c("tiny","small","medium","large")) -- 순서를 바꾸고싶다면 다시 선언을 하면 된다.
+
+# data frame (데이터프레임)★★
+
+- 각기 다른 데이터 타입을 갖는 컬럼으로 이루어진 2차원 테이블구조(DB의 TABLE과 유사하다.)
+- data.frame() 함수를 이용해서 각 컬럼, 행을 구성한다.
+
+df<-data.frame(x=c(1,2,3,4,5),y=c(6,7,8,9,10))
+> df
+  x  y
+1 1  6
+2 2  7
+3 3  8
+4 4  9
+5 5 10
+
+> class(df)
+[1] "data.frame"
+> mode(df) 
+[1] "list"
+> str(df)
+'data.frame':	5 obs. of  2 variables:
+ $ x: num  1 2 3 4 5
+ $ y: num  6 7 8 9 10
+
+obs: 데이터 프레임 안에 있는 row의 수
+variables : 데이터 프레임 안에 있는 column의 수 
+
+> df$x - x에 대한 값들만 확인하는 방법
+[1] 1 2 3 4 5
+> df$y - y에 대한 값들만 확인하는 방법
+[1]  6  7  8  9 10
+
+
+df<-data.frame(name=c('scott','harden','curry'),sql=c(90,80,70),plsql=c(70,80,90))
+> df
+    name sql plsql
+1  scott  90    70
+2 harden  80    80
+3  curry  70    90
+
+str(df)
+'data.frame':	3 obs. of  3 variables:
+ $ name : Factor w/ 3 levels "curry","harden",..: 3 2 1 -- 이름이 factor로 나온다. '',""로 묶을 경우 factor로 나오게 된다.
+ $ sql  : num  90 80 70
+ $ plsql: num  70 80 90
+
+# factor로 하면 수정하는것이 불편하기 때문에 옵션을 넣어서 해결한다.
+
+df<-data.frame(name=c('scott','harden','curry'),sql=c(90,80,70),plsql=c(70,80,90),stringsAsFactors=FALSE) <대소문자구분 ★>
+
+> str(df)
+'data.frame':	3 obs. of  3 variables:
+ $ name : chr  "scott" "harden" "curry" --char로 바뀐다.
+ $ sql  : num  90 80 70
+ $ plsql: num  70 80 90
+
+# 수정, 특정한 값 정보 확인
+
+df[1,1]<-'james'
+> df
+    name sql plsql
+1  james  90    70
+2 harden  80    80
+3  curry  70    90
+
+# 특정컬럼을 확인 : 변수$컬럼명
+
+> df$sql
+[1] 90 80 70
+> df$name
+[1] "james"  "harden" "curry" 
+> df$plsql
+[1] 70 80 90
+
+# 특정컬럼 추가
+
+df$r <- c(80,70,60)
+> df
+    name sql plsql  r
+1  james  90    70 80
+2 harden  80    80 70
+3  curry  70    90 60
+
+# 특정컬럼 삭제 -> NULL을 이용한다.
+
+df$r<-NULL
+> df
+    name sql plsql
+1  james  90    70
+2 harden  80    80
+3  curry  70    90
+
+> df[1,] - 1행 값
+   name sql plsql
+1 james  90    70
+> df[,2] - 2열 값
+[1] 90 80 70
+> df[c(1,3),2] - 1행 3행 2열 값
+[1] 90 70
+> df[-1,-2] - 1행 2열 을 뺀 나머지 값
+    name plsql
+2 harden    80
+3  curry    90
+
+ df[,c("sql","plsql")]
+  sql plsql
+1  90    70
+2  80    80
+3  70    90
+
+> df[,"sql",drop=FALSE] -- 세로로 보여준다.
+  sql
+1  90
+2  80
+3  70 
+
+> df$sql[1]
+[1] 90
+> df$sql[2]
+[1] 80
+
+x<-data.frame(1:3)
+
+# 컬럼이름 수정
+
+colnames(x) <- c("val") - 열이름 지정
+rownames(x) <- c("a","b","c") - 행이름 지정
+x
+  val
+a   1
+b   2
+c   3
+
+names(x) - colnames(x) 와 같다.
+[1] "val"
+
+names(x) <-c('col')
+> x
+  col
+a   1
+b   2
+c   3
+
+d<-data.frame(a=1:3,b=4:6,c=7:9)
+  a b c
+1 1 4 7
+2 2 5 8
+3 3 6 9
+names(d) %in% c("b","c")
+[1] FALSE  TRUE  TRUE
+
+# 특정한 컬럼 값만 뽑아내는 방법
+
+d[,names(d) %in% c("b","c")]
+  b c
+1 4 7
+2 5 8
+3 6 9
+
+# 특정한 컬럼을 제외하고 뽑아내는 방법
+
+d[,!names(d) %in% c("b","c")]
+[1] 1 2 3
+d[,-c(2,3)]
+[1] 1 2 3
+d[,c(-2,-3)]
+[1] 1 2 3
+d[,-c(2,3)]
+
+d[,-c("b","c")] - 열이름으로는 불가하다.
+
+# 행 추가
+
+d[4,]<-c(7,7,7)
+
+> d
+  a b c
+1 1 4 7
+2 2 5 8
+3 3 6 9
+4 7 7 7
+
+# 행 삭제
+
+d<-d[-4,]
+> d
+  a b c
+1 1 4 7
+2 2 5 8
+3 3 6 9
+
+x<-data.frame(x=1:1000) 
+
+head(x) # 앞부분의 데이터
+tail(x) # 뒷부분의 데이터 
+tail(x,n=10)
+   x
+991   991
+992   992
+993   993
+994   994
+995   995
+996   996
+997   997
+998   998
+999   999
+1000 1000
+
+head(x,n=10)
+    x
+1   1
+2   2
+3   3
+4   4
+5   5
+6   6
+7   7
+8   8
+9   9
+10 10

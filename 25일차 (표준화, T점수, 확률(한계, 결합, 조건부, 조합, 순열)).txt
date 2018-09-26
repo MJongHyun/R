@@ -1,0 +1,382 @@
+[문제200]A반 B 반의 수학점수를 비교하세요.
+
+A반 35,55,60,70,100
+B반 55,60,65,65,75
+
+A<-c(35,55,60,70,100)
+B<-c(55,60,65,65,75)
+
+mean(A)
+sd(A)
+mean(B)
+sd(B)
+
+# 두반의 평균은 같지만 표준편차로 봤을 때 B반의 성적의 분포가 고르다는 것을 볼 수 있기 때문에, 대체적으로 B반학생이 A반 학생
+# 보다 성적을 잘 받는다.
+
+
+[문제201] 성적.csv 파일에 과목별 평균값, 분산값, 표준편차값을 행으로 추가하시오.
+
+
+test<-read.csv('c:/data/성적.csv',header=T,stringsAsFactors=FALSE)
+
+test[(NROW(test)+1),]<-data.frame('평균',mean(test$sql),mean(test$r),stringsAsFactors=FALSE)
+test[(NROW(test)+1),]<-data.frame('분산',var(test$sql),var(test$r),stringsAsFactors=FALSE)
+test[(NROW(test)+1),]<-data.frame('표준편차',sd(test$sql),sd(test$r),stringsAsFactors=FALSE)
+
+
+[문제202] carrick의 sql=90점과 pogba의 r=90 둘중 어느 사람이 더 잘한 것인가?
+
+# 표준화
+비교해야할 데이터의 기준이 서로 다르므로 같은 기준을 만들어서 비교
+
+표준값 = (각측값 - 평균) / 표준편차
+
+# 표준점수(t점수)
+표준값 * 10 + 50 (10은 표준편차, 50은 평균) 
+
+
+# R과 SQL의 각각 평균은 72이다. 그러나 표준편차 값을 보면 SQL이 R보다 큰 값인 것을 볼 수 있는데 이말은 즉,
+# R의 성적은 SQL에 비해 값이 평균에 가깝게 나왔다 (고르게 나왔다)를 의미한다. 
+# 그러므로 대부분 R성적을 72 이상에 가까운 점수를 받았을 것이기에 표준편차가 높은 
+# SQL 90점을 받은 carrick이 더 잘했다고 할 수 있다.
+
+
+# 표준화 : 비교해야할 데이터의 기준이 서로 다르므로 같은 기준을 만들어서 비교
+
+normalize<-function(x){
+  return((x-mean(x))/sd(x))
+}
+
+normalize1<-function(x){
+  return((x-min(x))/(max(x)-min(x)))
+}
+
+test<-read.csv('c:/data/성적.csv',header=T,stringsAsFactors=FALSE)
+test<-cbind(test,normalize(test$sql[1:9]))
+test<-cbind(test,normalize(test$r[1:9]))
+
+test[1,4]*10 + 50 # carrick
+test[2,5]*10 + 50 # pogba
+
+# T 점수로 했을 땐 포그바가 더 높으므로 포그바가 더 잘봤다고 할수 있다.
+
+
+```
+[문제203] 지난달을 기준으로 a 사원은 영업 매출이 월 평균 1000만원, 표준편차가 200만원인  대리점을 담당하고있고,
+b 사원은 영업 매출이 월 평균 100만원, 표준편차가 10만원인 대리점을 담당하고 있다.
+이번달 a 사원이 담당하는 대리점의 매출이 1200만원으로 늘었고, b 사원이 담당하는 대리점은 120만원 늘었다.
+평균 매출 대비 20% 상승했다. 누가 잘한거죠?
+
+1000 200 800 1200
+100  10   90 110
+
+1200     
+120
+
+# b 사원이 잘했다.
+
+a 사원 표준화 : (1200-1000)/200
+b 사원 표준화 :(120-100)/10
+
+a사원 T점수 : 1*10+50
+b사원 T점수 : 2*10+50
+
+[문제204] 세곳의 채소농원으로부터 10일 동안 측정한 pphm 단위의 오존 농도를 보고 받았다. 오존 농도를 분석하세요.
+
+
+garden<-read.csv('c:/data/gardens.csv',header=T,stringsAsFactors = FALSE)
+garden
+A<-normalize(garden$gardenA)*10+50
+B<-normalize(garden$gardenB)*10+50
+C<-normalize(garden$gardenC)*10+50
+D<-as.data.frame(cbind(A,B,C))
+D
+E<-c()
+
+for (i in 1:NROW(D)){
+  E[i]<-which(min(D[i,])==D[i,])
+}
+
+table(E)
+
+plot(D$A,type="o",ylim=c(0,80),col="red",xlab='날짜',ylab='오존농도',main='각각 채소농원 A,B,C 의 일별 오존농도')
+par(new=T)
+plot(D$B,type="o",ylim=c(0,80),col="blue",xlab='',ylab='')
+par(new=T)
+plot(D$C,type="o",ylim=c(0,80),col="green",xlab='',ylab='')
+
+# 선생님 답
+
+
+library(reshape2)
+gar<-melt(garden)
+
+library(plyr)
+
+ddply(gar,'variable',summarise,mean=mean(value),var=var(value),sd=sd(value))
+names(gar)<-c('garden','Ozone')
+
+gar$day<-rep(1:10,3)
+
+library(ggplot2)
+ggplot(gar,aes(x=day,y=Ozone,group=garden,color=garden))+
+  geom_line(size=1)+
+  geom_point()+
+  labs(title='농장별 오존 측정량',subtitle='(단위: ppm)')+
+  geom_abline(intercept = seq(0,10,1), slope=0, color='gray80')+
+  theme(panel.background = element_rect(colour='gray50',fill='white'),panel.grid = element_blank())
+
+
+[문제205] R의 점수입니다. 아래와 같은 성적 분류표를 이용해서 학생들의 학점에  과락, 과락아님 여부 현황 파악을 막대그래프로 표현하세요.
+
+
+범주   분류 기준     						   과락여부
+---   --------------------------------------------------------    -----------   
+A     점수 > 평균 + 1.5 * 표준편차		  		    과락아님
+B     평균 + 0.5 * 표준편차 < 점수 <= 평균 + 1.5 * 표준편차	    과락아님
+C     평균 - 0.5 * 표준편차 < 점수 <= 평균 + 0.5 * 표준편차	    과락아님
+D     평균 - 1.5 * 표준편차 < 점수 <= 평균 - 0.5 * 표준편차	    과락
+F     점수 <= 평균 - 1.5 * 표준편차			            과락
+
+
+
+
+R<-read.csv('c:/data/r점수.csv',header=F,stringsAsFactors = FALSE)
+names(R)<-'score'
+t1<-mean(R$score)+1.5*sd(R$score)
+t2<-mean(R$score)+0.5*sd(R$score)
+t3<-mean(R$score)-0.5*sd(R$score)
+t4<-mean(R$score)-1.5*sd(R$score)
+
+R['범주']<-ifelse(R$score>t1,'A',ifelse(t2<R$score&R$score<=t1,'B',ifelse(t3<R$score&R$score<=t2,'C',ifelse(t4<R$score&R$score<=t3,'D','F'))))
+R['과락여부']<-ifelse(R$범주 %in% c('A','B','C'),'과락아님','과락')
+
+library(plyr)
+
+total<-tapply(R$score,R$범주,NROW)
+total1<-(table(R$범주))
+save<-melt(total1)
+colnames(save)<-c('범주','명수')
+A<-ifelse(names(total) %in% c('A','B','C'),'red','blue')
+
+save$명수
+
+aa<-barplot(total,ylim=c(0,20),col=A,main='R 점수 성적 분류표',xlab='등급',ylab='명')
+text(x=aa,y=save$명수,paste(save$명수,'명',sep=""),pos=3)
+legend("topright",c('과락아님','과락'),fill=c('red','blue'),cex=0.8)
+  
+save
+
+ggplot(save,aes(x=범주,y=명수))+
+  geom_bar(stat="identity",fill=A)+
+  expand_limits(x=0,y=30)+
+  geom_text(aes(label=paste(명수,'명',sep="")),position=position_stack(vjust = 1.3),color="black")
+
+
+
+# 선생님 답 
+
+
+score <- read.csv("c:/data/r점수.csv", header=F)
+avg <- mean(score[,1])
+std <- sd(score[,1])
+breaks <- c(0,avg-1.5*std, avg-0.5*std, avg+0.5*std, avg+1.5*std,100)
+lab <- c("F","D","C","B","A")
+r_cut <- cut(score[,1], breaks=breaks, right=T, labels=lab)
+r_spec <- as.data.frame(table(r_cut))
+names(r_spec) <- c("범주","빈도수")
+r_spec <- r_spec[sort(r_spec$범주,decreasing=T),]
+r_spec <- cbind(r_spec, 과락여부=ifelse(r_spec$범주%in%c("A","B","C"),"과락아님","과락"))
+
+library(ggplot2)
+ggplot(r_spec, aes(x=범주, y=빈도수, fill=과락여부))+
+  geom_bar(stat="identity",width=0.5)+	
+  labs(x="범주",y="빈도수",title="성적에 따른 과락여부")+
+  geom_text(aes(label=as.character(빈도수)), vjust=-0.3, size=3)
+
+
+
+# 확률 (Probability)
+
+- 모집단 전체를 분석하는게 아니라 모집단으로부터 추출한 표본의 자료를 분석하기 때문에 모수를 추정하고 가설을 검정하기 
+  때문에 확률이 중요하다.
+  
+# 확률의 개념
+
+- 경험 혹은 실험결과로 특정한 사건이나 결과를 발생할 가능성
+- 내가 비가올 확률?
+- 로또가 당첨될 확률은?
+- 한국축구가 우승할 확률은?
+
+# 주사위던지기 (실험)
+
+S(표본공간) = {1,2,3,4,5,6} -> 1/6
+실험 : 어떤 행위의 결과를 관찰하고 측정하여 그 결과에 대해 구체적인 값을 부여하는 행위
+표본공간 : 실험 결과로 발생할 수 있는 모든 가능한 결과의 집합
+표본점 : 한번의 실험결과 1
+
+주관적인 확률
+
+    - 내일 비가올 확률은 어느정도 일까?
+    - 홍길동이 내일 지각할 확률은?
+
+객관적인 확률
+
+    고전적 확률
+              - 주사위를 던졌을 때 무조건 1/6
+              - 예전부터 알려져 있는 확률
+      
+    상대도수 확률
+              - 같은 실험을 수 없이 많이 반복 했을 때 특정사건이 발생할 수 있는 상대적 가능성
+              - 동전 던지는 실험을 반복적으로 무수히 실행할 경우 앞면이 나올 확률 1/2
+              
+확률의 종류 
+
+1. 한계확률(marginal probability), 주변확률
+
+      - 아무런 조건이 없는 상태에서 A라는 사건이 발생할 확률
+      - P(A)
+      - 행과 열의 합을 빈도 전체합으로 나누면 한계확률을 구할 수 있다.
+      - 10명중에 한명을 뽑았을 때 남자일 확률은?
+      - 10명중에 한명을 뽑았을 때 불만족일 확률은?
+      
+          만족  보통  불만족  행의합 한계확률
+남성        2     1     1       4       2/5
+여성        0     4     2       6       3/5
+열의합      2     5      3      10       1
+한계확률  1/5   1/2   3/10      1      
+
+[문제206] survey_new.csv 데이터를 아래와 같이 생성하세요.
+
+         만족  보통 불만족 행의합 한계확률
+남        2.0  1.0    1.0      4      0.4
+여        0.0  4.0    2.0      6      0.6
+열의합    2.0  5.0    3.0     10      1.0
+한계확률  0.2  0.5    0.3      1      0.1
+
+
+
+new<-read.csv('c:/data/survey_new.csv',header=F,stringsAsFactors = FALSE)
+
+new_t<-table(new)
+new_t<-rbind(new_t,colSums(new_t))
+new_t<-cbind(new_t,rowSums(new_t))
+new_t<-rbind(new_t,new_t[3,]/10)
+new_t<-cbind(new_t,new_t[,4]/10)
+colnames(new_t)<-c('만족','보통','불만족','행의합','한계확률')
+rownames(new_t)<-c('남','여','열의합','한계확률')
+new_t<-(as.data.frame(new_t))
+new_t
+
+
+
+2. 결합확률 (joint probability)
+
+- 두개이상의 사건이 동시에 발생할 가능성을 나타내는 확률
+- 사건A와 사건B가 동시에 발생할 확률 
+- P(A∩B)
+- 10명 중에 남성이면서 만족할 확률? 
+- 10명 중에 여성이면서 불만족할 확률?
+
+         만족 보통 불만족 행의합 한계확률
+남        0.2  0.1    0.1    0.4      0.4
+여        0.0  0.4    0.2    0.6      0.6
+열의합    0.2  0.5    0.3    1.0      1.0
+한계확률  0.2  0.5    0.3    1.0      0.1
+
+new_tt<-new_t
+new_tt[1:3,1:4]<-new_tt[1:3,1:4]/10
+
+
+3. 조건부확률 (conditional probaility)
+
+- 이미 하나의 사건이 발생한 상태에서 또 다른 사건이 발생할 가능성을 나타내는 확률
+- 남성이라는 전제 조건하에서 만족할 확률?
+
+          p(A∩B)
+P(A|B) = -------
+          p(B)
+          
+B가 먼저 발생하고 A가 발생할 확률
+
+P(만족|남성) = 1/2
+
+p(A∩B) = P(A|B) * P(B) = P(B|A) * P(A)
+p(B∩A) = P(B|A) * P(A)
+
+
+확률의 덧셈법칙
+
+P(A∪B) = P(A) + P(B) - P(A∩B)
+
+S = {1,2,3,4,5,6}
+
+집합
+A = {1,2,3}
+B = {2,3,4}
+
+A∪B = 3 + 3 - 2
+
+확률
+
+P(A∪B) = 2/3
+
+# 배반사건
+
+-사건 A와 사건 B가 서로 연관이 없을 때   
+
+집합
+A = {1,2,3}
+B = {4,5,6}
+
+A∪B = 6
+
+확률
+
+P(A∪B) = 1
+
+# 확률의 곱셈법칙
+
+- 확률의 곱셈법칙은 조건부 확률을 이용하여 설명한다.
+- 조건부 확률은 하나의 사건이 발생한 상태에서 또다른 사건이 발생할 가능성을 나타내는 확률을 의미한다.
+
+사건A가 발생한 조건하에서 사건B가 발생할 조건부 확률
+        
+         p(B∩A)
+P(B|A) = -------
+          p(A)
+          
+          사과    딸기 행의합 한계확률        
+남         4       3    7       0.7
+여         2       1    3       0.3
+열의합     6       4    10      1
+한계확률  0.6     0.4   1        
+
+결합확률
+남성이면서 사과를 좋아할 확률
+남성∩사과 = 0.4
+
+조건부확률
+남학생 중에서 사과를 좋아할 확률 = 2/3
+
+조합(combination)
+
+- 서로 다른 n개의 개체에서 k를 선택하는 경우의 수
+          
+          n!
+nCk = --------------
+        k!(n-k)!
+
+순열(permutation)
+
+- 조합 + 순서
+
+          n!
+nPk = ----------
+        (n-k)!
+        
+[문제207] 3명 중 대표 2명을 선출하여 반장, 부반장으로 임명할 수 있는 경우의 수 ? 6
+
+[문제208] 3명 중 공동대표 2명을 선출하는 경우의 수 ? 3
+

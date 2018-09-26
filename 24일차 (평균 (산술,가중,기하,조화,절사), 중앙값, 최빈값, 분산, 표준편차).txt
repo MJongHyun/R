@@ -1,0 +1,358 @@
+[문제187] 유방암 데이터 입니다. kNN알고리즘을 이용해서 훈련데이터셋,테스트데이터셋을 이용해서 분류가 잘되는지 확인하세요.
+
+
+- 위스콘신대학의 연구원들의 자료
+- 유방 종양의 미세침 흡인물 디지털 이미지에서 측정한 값 이며 이 값은 디지털 이미지에 나타난 세포 핵의 특징이다.
+- 암조직 검사에 대한 관측값은 569개, 변수(속성) 32
+- 식별숫자, 암진단 여부(악성(Malignant),양성(Benign)), 30개 수치 측정치
+- 세포핵의 모양과 크기관련된 10개 특성
+	* radius(반지름)
+	* texture(질감)
+	* perimeter(둘레)
+	* area(넓이)
+	* smoothness(매끄러움)
+	* compactness(조밀성)
+	* concavity(오목함)
+	* concave points(오목점)
+	* symmetry(대칭성)
+	* fractal dimension(프랙탈 차원)
+
+wis<-read.csv('c:/data/wisc_bc_data.csv',header=T,stringsAsFactors = FALSE)
+wis
+colnames(wis)
+# dummy coding : 의미있는 숫자로 변환을 해줘야 하는 코딩
+
+# 검증
+
+group<-wis[,2]
+train<-wis[,3:length(wis)]
+summary(train)
+scale(train)
+
+normalize <- function(x) {
+  return ((x - mean(x)) / sd(x))
+}
+
+train_n <- as.data.frame(lapply(train, normalize))
+head(train_n)
+summary(train_n)
+
+wis1<-wis
+wis1[,3:length(wis1)]<-train_n
+head(wis1)
+
+set.seed(1234)
+
+# 트레이닝(60%), 테스트(40%) - 표준화로 비교
+
+nrow(train_n)
+
+train_sample<-sample(2,nrow(wis1),replace=TRUE,prob=c(0.6,0.4))
+train_sample
+
+wis_train<-wis1[train_sample==1,3:length(wis1)]
+wis_train_label<-wis1[train_sample==1,2]
+
+wis_test<-wis1[train_sample==2,3:length(wis)]
+wis_test_label<-wis1[train_sample==2,2]
+
+library(class)
+
+wis_model <- knn(wis_train,wis_test,wis_train_label, k=19)
+wis_model
+
+library(gmodels)
+
+CrossTable(x = wis_test_label, y = wis_model, prop.chisq=FALSE)
+knn(wis_train,wis1[,3:length(wis1)],wis_train_label,k=19)
+
+# test 해보기- 표준화 안한 것으로 비교
+
+a<-train[130,]
+knn(train,a,group,k=19)
+
+# [0,1] max, mean 으로 비교 
+
+normalize1 <- function(x) {
+  return ((x - min(x)) / (max(x)-min(x)))
+}
+
+train_n1 <- as.data.frame(lapply(train, normalize1))
+train_n1
+
+wis2<-wis
+wis2[,3:length(wis1)]<-train_n1
+
+set.seed(1234)
+
+# 트레이닝(60%), 테스트(40%) - max,min 표준화로 비교
+
+train_sample<-sample(2,nrow(wis1),replace=TRUE,prob=c(0.6,0.4))
+train_sample
+
+wis_train1<-wis2[train_sample==1,3:length(wis1)]
+wis_train_label1<-wis2[train_sample==1,2]
+
+wis_test1<-wis2[train_sample==2,3:length(wis)]
+wis_test_label1<-wis2[train_sample==2,2]
+
+library(class)
+
+wis_model1 <- knn(wis_train1,wis_test1,wis_train_label1, k=19)
+wis_model
+
+library(gmodels)
+
+CrossTable(x = wis_test_label1, y = wis_model1, prop.chisq=FALSE)
+
+knn(wis_train1,wis2[130,3:length(wis2)],wis_train_label1,k=19) # max min
+knn(wis_train,wis1[130,3:length(wis1)],wis_train_label,k=19) # Z
+knn(train,wis[130,3:length(wis)],group,k=19) # 정규화 안함
+
+
+[문제188] 새환자의 초음파 결과를 보고 종양이 양성인지 악성인지를 분석해 주세요
+
+p<-read.csv('c:/data/patient.csv',header=T,stringsAsFactors = FALSE)
+
+t<-p[,3:length(p)]
+
+knn(train,t,group,k=19)
+
+NROW(z_train)
+
+z_train<-rbind(train,t)
+n_train<-rbind(train,t)
+
+
+
+z_train<-as.data.frame(lapply(z_train,normalize)) # Z
+n_train<-as.data.frame(lapply(n_train,normalize1)) # [0,1]
+
+z_test<-z_train[NROW(z_train),] # z
+n_test<-n_train[NROW(n_train),] # [0,1]
+
+NROW(group)
+knn(z_train[1:(NROW(z_train)-1),],z_test,group,k=19,prob=T)
+knn(n_train[1:(NROW(n_train)-1),],n_test,group,k=19,prob=T)
+
+[문제189] JOB_ID 별로 월급의 차이가 존재하는지 crosstable로 분석하려고 합니다.
+월급 10000을 기준으로 JOB_ID 별로 각각 10000 이상인 사원과 이하인 사원들의 인원수가 출력하세요. 
+
+emp<-read.csv('c:/data/emp.csv',header=T,stringsAsFactors = FALSE)
+
+emp['sal_yn']<-ifelse(emp$SALARY>=10000,'10000원이상','10000원미만')
+emp$JOB_ID
+emp$sal_yn
+CrossTable(x=emp$JOB_ID,y=emp$sal_yn, prop.chisq=FALSE)
+
+# 자료의 중심
+
+중심위치 (central location)
+
+- 관찰된 자료들이 어디에 집중되어 있는가를 나타낸다.
+- 대표값 (대표할 수 있는 값)
+- 평균, 중앙값, 최빈값
+
+# 산술평균 (mean)
+
+- 자료들의 무게 중심
+- 모집단 평균 : μ (뮤)
+- 표본 평균 : X (엑스바)
+
+x<-c(1,2,3,4,5)
+mean(x)
+
+# 가중평균 (Weighted mean)
+
+- 각 항의 수치에 그 중요도에 비례하는 계수를 곱한 다음 산출한 평균
+- 정밀도나 들어온 양이 같지 않은 물품의 평균 가격처럼 원래의 수치가 동등하지 않다고 생각되는 경우 사용
+
+예) 중간고사 기말고사 합
+
+(70*기말고사) + (30*중간고사)/(70+30)
+
+[문제 190] 수강생이 다른 세반의 평균은?
+
+반  수강생 반평균
+1    40     70
+2    35     75
+3    25     80
+
+((40*70)+(35*75)+(25*80))/100
+
+data<-data.frame('class'=c(1,2,3),'student'=c(40,35,25),'avg'=c(70,75,80))
+
+sum(data$student*data$avg)/sum(data$student)
+
+
+[문제 191] 홍하든, 박커리 두 학생이 확률통계(3학점), 컴퓨터 시스템(2학점)을 수강한 결과 홍하든은 확률통계에서 A학점,
+           컴퓨터 시스템에서 B학점을 받았고, 박커리는 확률통계에서 B학점, 컴퓨터시스템에서 A학점을 받았다.
+           A학점의 평점은 4, B학점의 평점은 3 일때 학점수를 가중치로 하여 두학생의 평균 평점을 구하세요.
+           
+
+
+(3*4+2*3)/5
+(3*3+2*4)/5
+```
+           
+[문제 192] 전년도 대비 증가율을 구하세요.
+
+년도  수익  증가율
+2013  635   
+2014  998
+2015  1265
+2016  1701
+2017  2363
+
+
+((998-635)/635) * 100
+((1265-998)/998) * 100
+((1701-1265)/1265) * 100
+((2363-1701)/1701) * 100
+
+data<-data.frame('년도'=c(2013:2017),'수익'=c(635,998,1265,1701,2363),'증가율'=c(0))
+
+
+
+[문제 193] 5년동안 연평균 변화율은?
+
+
+(2365/635)^(1/4)-1
+
+
+
+# 기하평균 (Gemetric mean)
+- 곱의 형태로 변하는 자료
+- 비율의 평균계산에 많이 사용
+- 물가상승률, 인구변동률 연평균 증가율 
+
+# 조화평균 (Harmonic mean)
+
+- 속도 등과 같이 여러 단위가 결합되어 있을때 계산
+
+
+[문제 194] 서울과 부산(400km)를 왕복하는데 서울에서 부산으로 가는데 시속 150km/h 가고 오는데 시속 100km/h 로 왔다면
+왕복하는데 걸린 평균 시속은?
+
+
+400/((400/150 + 400/100) /2)
+
+
+# 절단평균(절사평균)(Trimmed mean)
+
+- 자료중에서 큰 관측값이나 작은 관측값을 각각 몇 만큼 버린 나머지 관측값들로 부터 구한 평균
+
+- 평균은 양쪽 끝값의 (최소, 최대) 변화에 민감하다.
+- 최소, 최대를 제거한 후 평균
+- 스포츠 경기에 많이 사용
+- 2014년 국회의원 재산 공개
+      평균 97억 5667만
+      500억 이상 제외한 평균 18억 686만원
+      
+중앙값 (median)
+- 중심으로 좌우 분포 면적이 같다.
+- 이상치의 영향을 받지 않음
+- 자료를 순서대로 늘어 놓고 전체 자료 갯수 중에 50% 되는 값
+
+최빈값 (mode)
+- 빈도의 수 
+
+자료의 퍼진정도 
+- 대표값을 중심으로 얼마나 자료들이 퍼져있는지를 나타낸다.
+- 범위(range) : max - min
+- 편차 (개별관측값 - 평균) 편차의 합은 0 
+
+h<- c(168,174,171,165,177)
+범위 
+편차
+
+max(h)-min(h)
+
+h-mean(h)
+
+# 분산 (variance)
+
+- 개별 자료들이 평균에 대해 얼마만큼 떨어질지 기대하는 값
+
+var(h) # 표본분산으로 값이 나온다.
+
+# 모분산
+sum((h-mean(h))^2) / length(h)
+
+#표본분산
+sum((h-mean(h))^2) / (length(h)-1)
+
+# 표준편차
+sqrt(sum((h-mean(h))^2) / (length(h)-1))
+sd(h)
+
+mean(h)
+sd(h)
+
+171 ± 4.74 (평균 171 기준으로 부터 4.74만큼 떨어져 있다.)
+
+
+[문제195] 가구당 자녀수
+
+p<-c(2,3,0,2,1,0,3,1,4)
+
+p<-c(2,3,0,2,1,0,3,1,4)
+
+mean(p)±sd(p)
+
+[문제196] 병원진료시간 어느병원으로 가면 좋을까요?
+
+A 병원 10 15 17 17 23 20  
+B 병원 17 32 5  19 20 9
+
+a<-c(10,15,17,17,23,20)
+b<-c(17,32,5,19,20,9)
+
+mean(a)
+mean(b)
+sd(a)
+sd(b)
+
+# A로 가는것이 좋다 
+
+[문제197] 관측데이터값들을 확인 한 후 NA값이 있을 경우 산술평균으로 수정해주세요
+
+1,3,4,NA,10,NA,8,2
+
+a<-c(1,3,4,NA,10,NA,8,2)
+
+a[is.na(a)]<-mean(na.omit(a))
+
+a
+
+
+[문제198] 관측데이터들을 확인 한 후 NA 값이 있을 경우 내가 만든 함수를 통해서 산술평균의 값으로 수정해 주세요.
+
+1,3,4,NA,10,NA,8,2
+
+f<-function(x){
+  ifelse(is.na(x)==T,x[which(is.na(x))]<-mean(x,na.rm=T),x)  
+}
+a<-c(1,3,4,NA,10,NA,8,2)
+a<-f(a)
+
+[문제199] sample 함수를 통해서 1부터 100까지의 숫자들 중에 60개만 랜덤하게 추출해서 matrix를 생성하세요.
+          행은 6행으로 만드세요.
+          생성한 행렬의 값 중에 3행 2열에 NA 값, 5행4열에 NA값으로 수정하세요.
+          198에서 만든 함수를 이용해서 NA값은 열을 기준으로 하는 평균값으로 수정하세요/
+         
+set.seed(1234)
+m<-matrix(sample(1:100,60),nrow=6)
+m[3,2]<-NA
+m[5,4]<-NA
+
+for (i in 1:ncol(m)){
+  m[,i]<-f(m[,i])
+}
+
+
+
+        
+
+
+

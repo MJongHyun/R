@@ -1,0 +1,123 @@
+sum(emp$SALARY) 
+sum(aggregate(SALARY~DEPARTMENT_ID,emp,sum)) - department_id + salary 전체 더한 값이라 다르다.
+sum(aggregate(SALARY~DEPARTMENT_ID,emp,sum)[2]) - null 값 빼고 salary 값들 다 계산이 된다.
+
+# subset() - 조건에 만족하는 데이터를 선택 / subset(테이블, 조건)
+
+na.omit(emp[emp$DEPARTMENT_ID == 20,c('DEPARTMENT_ID','LAST_NAME')])  
+
+na.omit(emp[emp$DEPARTMENT_ID == 20,]) -- 값이 나오지 않는다 이유: COMMISSION PCT가 해당조건의 값에서 모두 NA이기 때문에 모두 삭제된다.
+
+해결: na.omit(emp[emp$DEPARTMENT_ID==20, !names(emp) %in% c('COMMISSION_PCT')])
+
+subset(emp,DEPARTMENT_ID==20)
+names(emp)
+emp[,c('LAST_NAME','SALARY','DEPARTMENT_ID')]
+
+emp[,names(emp) %in% c('LAST_NAME','SALARY','DEPARTMENT_ID')] 
+subset(emp,select=c(LAST_NAME,SALARY,DEPARTMENT_ID))
+
+emp[,!names(emp) %in% c('LAST_NAME','SALARY','DEPARTMENT_ID')] - 특정한 열을 제외시키는 방법
+subset(emp,select=-c(LAST_NAME,SALARY,DEPARTMENT_ID)) - 마이너스를 붙여서 위와 같이 특정한 열을 삭제하는 것이 가능하다.
+
+subset(emp,SALARY>=10000,select=-c(LAST_NAME,SALARY,DEPARTMENT_ID))
+
+★ sqldf
+	sql을 이용해서 데이터를 처리한다.
+
+install.packages("sqldf") # MYSQL을 기반으로 해서 만들었다.
+library(sqldf)
+
+sqldf("select * from emp")
+sqldf("select * from dept")
+sqldf("select * from loc")
+sqldf("select job_id from emp")
+sqldf("select distinct job_id from emp")
+sqldf("select * from emp where department_id=20")
+sqldf("select * from emp limit 10")  -- 10개만 보여준다.
+sqldf("select last_name as name,salary from emp order by salary desc") -- 내림차순, 별칭도 가능하다.
+
+length(emp) - data.frame 컬럼갯수
+NROW(emp) - data.frame row의 수 확인
+sum(emp$SALARY)
+mean(emp$SALARY)
+sd(emp$SALARY)
+var(emp$SALARY)
+max(emp$SALARY)
+min(emp$SALARY)
+
+sqldf("select count(employee_id),sum(salary),avg(salary),variance(salary),stdev(salary),max(salary),min(salary) from emp")
+
+sqldf("select department_id,sum(salary) from emp group by department_id")
+
+sqldf("select department_id,sum(salary) from emp group by department_id having sum(salary)>=20000")
+
+sqldf("select department_id,job_id,sum(salary) from emp group by department_id having sum(salary)>=20000") 
+-- group by에 job_id를 안적어도 오류가 나지 않는다.
+
+sqldf("select department_id,job_id,sum(salary) from emp group by department_id,job_id having sum(salary)>=20000") 
+-- 하지만 결과가 다르다. 그러므로 위처럼 하는 것은 틀린것이니 주의해야한다.
+
+sqldf("select last_name,upper(last_name),lower(last_name), substr(last_name,1,2), length(last_name), leftstr(last_name,2),
+	      rightstr(last_name,2), reverse(last_name) from emp")
+
+# leftstr : 왼쪽으로 부터 글자, rightstr : 오른쪽으로 부터 글자, reverse: 거꾸로 출력
+
+sqldf("select salary/3, round(salary/3,0) from emp")
+
+sqldf("select * from emp where department_id is null")
+sqldf("select * from emp where department_id is not null")
+sqldf("select * from emp where department_id in (10,20)")
+sqldf("select * from emp where salary between 10000 and 20000")
+sqldf("select e.last_name, d.department_name from emp e, dept d where e.department_id=d.department_id")
+sqldf("select e.last_name, d.department_name from emp e join dept d on e.department_id=d.department_id")
+sqldf("select e.last_name, d.department_name from emp e join dept d using(department_id)")
+sqldf("select e.last_name, d.department_name from emp e left outer join dept d on e.department_id=d.department_id")
+
+sqldf("select e.last_name, d.department_name from emp e right outer join dept d on e.department_id=d.department_id") -- 오류발생
+sqldf("select e.last_name, d.department_name from emp e full outer join dept d on e.department_id=d.department_id") -- 오류발생
+
+# right는 바꾸면 된다. full은 union 하면 된다.
+
+sqldf(" select e.last_name, d.department_name from emp e left outer join dept d on e.department_id=d.department_id
+	union
+	select e.last_name, d.department_name from dept d left outer join emp e on e.department_id=d.department_id")
+
+sqldf(" select e.last_name, d.department_name from emp e left outer join dept d on e.department_id=d.department_id
+	union all
+	select e.last_name, d.department_name from dept d left outer join emp e on e.department_id=d.department_id")
+
+sqldf(" select e.last_name, d.department_name from emp e left outer join dept d on e.department_id=d.department_id
+	intersect
+	select e.last_name, d.department_name from dept d left outer join emp e on e.department_id=d.department_id")
+
+sqldf(" select e.last_name, d.department_name from emp e left outer join dept d on e.department_id=d.department_id -- 오류발생/ 없다.
+	minus
+	select e.last_name, d.department_name from dept d left outer join emp e on e.department_id=d.department_id")
+sqldf(" select e.last_name, d.department_name from emp e left outer join dept d on e.department_id=d.department_id
+	intersect
+	select e.last_name, d.department_name from dept d left outer join emp e on e.department_id=d.department_id")
+
+sqldf(" select e.last_name, d.department_name from emp e left outer join dept d on e.department_id=d.department_id - minus대신 사용 
+	except
+	select e.last_name, d.department_name from dept d left outer join emp e on e.department_id=d.department_id")
+
+
+# 서브쿼리도 가능하다.
+
+sqldf(" select * from emp
+	where salary > (select salary
+			from emp
+			where employee_id=150)")
+
+# hire_date가 문자형이면 sqldf에서 사용하는 것이 가능하다.
+
+emp$HIRE_DATE<-as.character(emp$HIRE_DATE)
+
+# 안되는거 : to_char, to_date, lpad, rpad, sysdate, mod, trunc, to_number, nvl, grouping 관련 함수 (rollup, cube 등), DML(x), DCL(x)
+# case (o) decode(x) if(x), exists(o), inline view(o), coaleace(o),서브쿼리 (o), join(o), 별칭(o)
+# select 하고 바로 문자 적기, 사칙연산 가능
+
+https://dev.mysql.com/doc/refman/8.0/en/func-op-summary-ref.html
+https://cran.r-project.org/web/packages/sqldf/README.html#1-how-does-sqldf-handle-classes-and-factors
+3. Why does sqldf(“select var(x) from DF”) not work?

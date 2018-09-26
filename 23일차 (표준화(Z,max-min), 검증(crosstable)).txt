@@ -1,0 +1,228 @@
+[문제185]  나이, 월수입, 상품구매여부를 갖는 데이터가 있다.
+         이 데이터를 이용해서 나이가 44 이고 월급이 400 만원인 사람이
+         상품을 구매할지 비구매할지를 knn 분류 알고리즘으로 분석하세요.
+
+library(class)
+
+buy<-read.csv('c:/data/buy.csv',header=T,stringsAsFactors = FALSE)
+
+z<-c()
+y<-c()
+for (i in 1:NROW(buy)){
+  z[i]<-(buy$나이[i]-mean(buy$나이))/sd(buy$나이)
+  y[i]<-(buy$월수입[i]-mean(buy$월수입))/sd(buy$월수입)
+}
+
+train<-cbind(z,y)
+
+test<-c((44-mean(buy$나이))/sd(buy$나이),(400-mean(buy$월수입))/sd(buy$월수입))
+group<-buy[,3]
+
+knn(train,test,group,k=8,prob=T)
+
+# 변수를 표준화 
+# 서로다른 기준을 가진 확률 변수들을 상대적으로 비교할 도구
+
+X ~ N (μ,σ^2)
+Z ~ N (0,1^2)
+
+    관측값 - 평균
+Z = --------------
+        표준편차
+
+#           한국    미국   일본 
+----------------------------------
+# 평균급여  200만   2500$  21만엔
+# 표준편차   10만    300$   2.5만
+
+#           215만   2800$  23만엔
+
+
+# Z값        1.5     1       0.8  -> 한국사람이 가장 많이 받는다 (표준화결과)
+
+# 제곱을 할시 
+for (i in 1:NROW(buy)){
+  z[i]<-((buy$나이[i]-mean(buy$나이))/sd(buy$나이))^2
+  y[i]<-((buy$월수입[i]-mean(buy$월수입))/sd(buy$월수입))^2
+}
+z
+y
+train<-cbind(z,y)
+test<-c(((44-mean(buy$나이))/sd(buy$나이))^2,((400-mean(buy$월수입))/sd(buy$월수입))^2)
+group<-buy[,3]
+
+knn(train,test,group,k=3,prob=T)
+
+# scale : 표준정규값 구하는 함수
+
+# 0~1 사이로 표준화 시키고 싶을때 : 최대값과 최소값으로 표준화가 가능하다.
+
+1,2,3,4,5
+
+10,20,30,40,50
+
+           x-최소값
+표준화 = --------------
+         최대값 - 최소값
+
+x<-c(1:5)
+y<-c(seq(10,50,10))
+
+
+buy <- read.csv("c:/data/buy.csv" , stringsAsFactors = F , header = T)
+
+normalize <- function(x) {
+   (x-min(x))/(max(x)-min(X))
+}
+
+
+buy$age <-unlist(lapply(buy[1],normalize))
+buy$pay <-unlist(lapply(buy[2],normalize))
+buy
+
+test <- data.frame(age=44 , pay=400)
+test
+
+train <- buy[,c(4,5)]
+labels <- buy[,3]
+
+
+test$age <- (test$age - mean(buy$나이)) / sd(buy$나이)
+test$pay<- (test$pay - mean(buy$월수입)) / sd(buy$월수입)
+
+library(class)
+
+knn(train , test , labels , k=1)
+
+knn(train , test , labels , k=1 , prob=TRUE) 
+
+knn(train , test , labels , k=3 , prob=TRUE) 
+
+[문제186] zoo.csv 데이터 집합은 동물의 특징과 부류 정보가 있습니다. 
+	  특정 데이터 동물 정보가 어느 부류에 속하는 지를 knn 알고리즘을 이용해서 분석하세요.
+
+[변수 정보]
+
+   1. animal name:      Unique for each instance
+   2. hair		Boolean
+   3. feathers		Boolean
+   4. eggs		Boolean
+   5. milk		Boolean
+   6. airborne		Boolean
+   7. aquatic		Boolean
+   8. predator		Boolean
+   9. toothed		Boolean
+  10. backbone		Boolean
+  11. breathes		Boolean
+  12. venomous		Boolean
+  13. fins		Boolean
+  14. legs		Numeric (set of values: {0,2,4,5,6,8})
+  15. tail		Boolean
+  16. domestic		Boolean
+  17. catsize		Boolean
+  18. type		Numeric (integer values in range [1,7])
+
+[18. type]
+1 : 포유류
+2 : 조류
+3 : 파충류
+4 : 어류
+5 : 양서류 
+6 : 곤충
+7 : 갑각류 
+
+zoo<-read.csv('c:/data/zoo.csv',header=F,stringsAsFactors = FALSE)
+name<-c('포유류','조류','파충류','어류','양서류','곤충','갑각류')
+for (i in 1:length(name)){
+  zoo[which(zoo[,18]==i),18]<-name[i]
+}
+
+train<-zoo[,2:17]
+train<-train[-101,]
+test<-zoo[101,-c(1,18)]
+group<-zoo[-101,18]
+test
+
+knn(train,test,group,k=1)
+
+
+# 검증 해보기
+
+# 붓꽃 데이터
+# SepalLength : 꽃받침의 길이
+# SepalWidth  : 꽃받침의 폭
+# PetalLength : 꽃잎의 길이
+# PetalWidth  : 꽃잎의 너비
+# 붓꽃의 종류 : Iris-setosa, Iris-versicolor, Iris-virginica
+
+iris <- read.csv("c:/data/iris.csv" , stringsAsFactors = F , header = T)
+iris
+str(iris)
+
+
+summary(iris)
+
+normalize <- function(x) {
+  return ((x - min(x)) / (max(x) - min(x)))
+}
+
+
+iris_n <- as.data.frame(lapply(iris[1:4], normalize))
+
+summary(iris_n)
+
+
+table(iris$Name)
+
+
+set.seed(1234)
+
+# 트레이닝(67%), 테스트(33%)
+# 지금한 것은 표준화 한게 아니므로 표준화 해서도 확인해보기
+
+iris_sample <- sample(2,nrow(iris), replace=TRUE,prob = c(0.67,0.33)) # sample 랜덤하게 값을 뽑는다.
+iris_training <- iris[iris_sample == 1, 1:4]
+iris_training
+iris_train_label <- iris[iris_sample ==1, 5]
+iris_train_label
+
+
+iris_test <- iris[iris_sample == 2, 1:4]
+iris_test
+iris_test_label <- iris[iris_sample ==2, 5]
+iris_test_label
+
+library(class)
+
+
+iris_model <- knn(iris_training,iris_test,iris_train_label, k=3)
+iris_model
+
+
+install.packages("gmodels")
+library(gmodels)
+
+
+CrossTable(x = iris_test_label, y = iris_model, prop.chisq=FALSE)
+
+
+x<-11:20
+s1<-sample(2,length(x),replace=TRUE,prob=c(0.60,0.40))
+x[s1==1]
+x[s1==2]
+
+s2<-sample(1:10,6)
+x[s2]
+x[-s2]
+
+# 동일한 표본 추출 방법 set.seed(1234)
+
+set.seed(1234)
+s2<-sample(1:10,6)
+x[s2]
+x[-s2]
+
+
+
+
+

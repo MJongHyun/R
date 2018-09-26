@@ -1,0 +1,17 @@
+# stacked bar chart
+
+x1<-c(2,6,9,5)
+x2<-c(8,10,15,6)
+
+data<-rbind(x1,x2)
+name<-c("영업1팀","영업2팀","영업3팀","영업4팀")
+label<-c("2016년","2017년")
+
+barplot(data,names.arg=name,main="영업팀별 실적",xlab="영업팀",ylab="판매실적(억원)",ylim=c(0,30),legend.text=label,
+	col=c('darkblue','red'))
+
+# group bar chart - barplot 옵션에 beside = T 하게 되면 그래프가 나눠서 나온다.★★ 단, 데이터 셋이 반드시 행으로 구성!
+
+barplot(data,names.arg=name,main="영업팀별 실적",xlab="영업팀",ylab="판매실적(억원)",legend.text=label,
+	col=c('darkblue','red'),beside=T)
+

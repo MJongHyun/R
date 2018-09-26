@@ -1,0 +1,7 @@
+jAVA.JRE 설치 경로를 확인해야 한다.
+
+C:\Program Files\Java\jre1.8.0_102\bin
+
+# path 걸기 
+
+컴퓨터 -> 설정 -> 고급시스템설정 -> 환경변수 -> 시스템 변수에 path 누르고 편집 -> 맨 마지막 끝에 ;C:\Program Files\Java\jre1.8.0_102\bin

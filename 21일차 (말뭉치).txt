@@ -1,0 +1,186 @@
+# 말뭉치
+
+말뭉치(corpus)는 자연언어 연구를 위해 특정한 목적을 가지고 언어의 표본을 추출한 집합
+
+
+install.packages('tm')
+library(tm)
+data1<-readLines('c:/data/tm_example.txt')
+
+corp1<-Corpus(VectorSource(data1)) # documents: 5 -> 문서의 갯수 의미 (vector 크기)
+
+
+# documents
+
+- tm 패키지가 작업할 수 있는 특별한 형태를 의미 
+  일반적으로 1줄이 1개의 document가 된다.
+  
+
+# corpus 내용 보는 방법
+
+summary(corp1) 
+inspect(corp1) 
+corp1[[1]]
+
+Metadata:  7 # 공백을 기준으로 덩어리를 의미
+Content:  chars: 42 # 글자수 구성
+
+corp1[[1]]$meta
+
+#  author       : character(0)
+#  datetimestamp: 2018-08-24 01:04:02
+#  description  : character(0)
+#  heading      : character(0)
+#  id           : 1
+#  language     : en
+#  origin       : character(0)
+
+corp1[[1]]$content # 문서내용을 볼 수 있다.
+
+
+# 단어 분석 - matrix로 바꿔서 사용을 해야한다.
+## tm 패키지가 분석할 수 있는 Term-Document 형식의 matrix로 변환
+
+
+tdm<-TermDocumentMatrix(corp1)
+tdm
+m<-as.matrix(tdm) # 한글자는 무조건 버린다.
+m
+
+
+# 한글자도 분석을 하고 싶다면 옵션을 사용한다.
+
+tdm<-TermDocumentMatrix(corp1,control=list(WordLengths=c(1,Inf)))
+
+# WordLengths -> 단어 분석 갯수를 정해서 구간을 정한다.
+m<-as.matrix(tdm)
+m
+
+# ★★  gsub 사용시  주의해야한다.  (corpus 사용시)
+
+# tm_map : 말뭉치 정제 함수
+
+corp2<-tm_map(corp1,stripWhitespace)
+
+corp2<-tm_map(corp2,tolower) # 대문자가 있을 경우 소문자로 변환
+
+corp2<-tm_map(corp2,removeNumbers) # 숫자제거
+
+corp2<-tm_map(corp2,removePunctuation) # 특수문자 제거
+
+inspect(corp2) # 값 확인
+
+
+# 말뭉치에서 gsub을 이용하고 싶다면 
+
+corp3<-gsub('~','',corp1) # 이건 불가능하다 
+
+tostring<-content_transformer(function(x,from,to) gsub(from,to,x)) 
+
+corp3<-tm_map(corp1, tostring,"~","")
+corp3<-tm_map(corp3, tostring,"!","")
+corp3<-tm_map(corp3, tostring,",","")
+
+inspect(corp3)
+
+# 불용어 제거(전치사, 관사 등) 
+
+stopwords('en') # 제거하고 싶은 용어를 여기다 추가 (en은 영어를 의미)
+
+sword<-c('and','but','not')
+
+corp2<-tm_map(corp2,removeWords,sword) # 내가 원하는 값만 제거하는 방법
+
+
+sword<-c(stopwords('en'),'and','but','not')
+
+inspect(corp2)
+tdm2 <- TermDocumentMatrix(corp2)
+m2 <- as.matrix(tdm2)
+m2
+
+freq1<-sort(rowSums(m2),decreasing=T) # 빈도수 체크
+freq1
+
+freq2<-sort(colSums(m2),decreasing=T) # 문장의 단어 수
+freq2
+
+
+# 특정 횟수 이상 언급된 단어들만 출력
+
+findFreqTerms(tdm2,2) # 말뭉치 만들어 놓은 걸로도 가능하다.
+
+
+# 특정 단어와 상관관계를 찾고 싶을 경우 
+
+findAssocs(tdm,"apple",0.5)
+
+library(RColorBrewer)
+library(wordcloud)
+palete <- brewer.pal(7,"Set3")
+wordcloud(names(freq1),freq=freq1,min.freq=1,colors=palete)
+
+barplot(freq1,main="tm pakages",las=2)
+
+ggplot() # 표현해보기
+
+
+# 연관있는 단어 그래프로 만들기 (관계도 그리기)
+
+# 행렬의 곱 사용하면 연관있는 단어를 분석하는 것이 가능하다.
+mm<-m2%*%t(m2)
+mm
+
+m2
+t(m2)
+
+install.packages('igraph')
+library(igraph)
+
+g<-graph.adjacency(mm,weighted=T,mode="undirected")
+plot(g)
+
+# 자기자신 없애기
+
+g2<-simplify(g) # 재귀 제거
+plot(g2)
+
+
+# 말뭉치로 단어 정제하여 연관성 찾기
+# 연습 : 오바마 연설문
+
+library(tm)
+oh<-readLines('c:/data/오바마.txt')
+
+grep(paste("[[:alpha:]]",a,"[[:alpha:]]",sep=""),oh)
+
+oh1<-str_replace_all(oh,"’","")
+
+ohcorp<-Corpus(VectorSource(oh1)) # 말뭉치 생성
+summary(ohcorp)
+inspect(ohcorp)
+ohcorp1<-tm_map(ohcorp,stripWhitespace) # 띄어쓰기 제거
+ohcorp1<-tm_map(ohcorp1,tolower) # 대문자가 있을 경우 소문자로 변환
+ohcorp1<-tm_map(ohcorp1,removePunctuation) # 특수문자 제거
+ohcorp1<-tm_map(ohcorp1,removeNumbers) # 숫자제거
+sword<-c(stopwords('en'),"'s","'ll","'[[:alpha:]]") #불용어 제거
+ohcorp1<-tm_map(ohcorp1,removeWords,sword) # 해당하는 값 제거
+ohcorp2<-tm_map(ohcorp1, tostring,"'","")
+
+m1<-as.matrix(TermDocumentMatrix(ohcorp1),control=list(WordLengths=c(1,Inf)))
+m1
+
+freq1<-sort(rowSums(m1),decreasing=T)
+freq1
+
+mm<-m1%*%t(m1)
+library(igraph)
+g<-graph.adjacency(mm,weighted=T,mode="undirected")
+g2<-simplify(g)
+plot(g2)
+
+
+
+
+
+

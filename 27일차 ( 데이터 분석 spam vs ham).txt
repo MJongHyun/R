@@ -1,0 +1,290 @@
+[문제214] 스팸 SMS 메시지 입니다.  나이브 베이즈(Naive Bayes)를 사용한 분류해 보세요.
+
+Sys.setlocale(category = "LC_ALL", locale = "us")
+
+# multibyte 오류가 나므로 위의 작업을 해준다. 
+# multibyte 오류가 나는 이유는 Corpus가 영어를 분류하는데 영어는 1byte이기 때문에 영어가 아닌 
+# 문자인 경우 Corpus 옵션을 사용시 오류가 나는데 그 오류가 multibyte이다.
+
+
+# 확인 
+
+dim_dict<findFreqTerms(dtm,2)
+dtm_train<-DocumentTermMatrix(corp1,list(dictionary=dim_dict))
+dim_train
+inspect(dim_train)
+
+
+#선생님 답
+
+
+## 1 단계 :  스팸 SMS 메시지 데이터 준비
+
+# sms 데이터 프레임으로 sms 데이터 읽기
+sms_raw <- read.csv("c:/data/sms_spam.csv", stringsAsFactors = FALSE)
+
+# sms 데이터 구조
+str(sms_raw)
+
+# 팩터로 spam/ham으로 변환
+sms_raw$type <- factor(sms_raw$type)
+
+# 변수형 확인
+str(sms_raw$type)
+table(sms_raw$type)
+
+# 텍스트 마이닝(tm) 패키지를 사용하여 말뭉치 생성
+library(tm)
+sms_corpus <- Corpus(VectorSource(sms_raw$text))
+
+# sms 말뭉치 확인
+print(sms_corpus)
+inspect(sms_corpus[1:3])
+
+# multibyte 오류가 나므로 위의 작업을 해준다. 
+
+Sys.setlocale(category = "LC_ALL", locale = "us")
+
+# tm_map() 사용하여 말뭉치 정리
+corpus_clean <- tm_map(sms_corpus, tolower)
+corpus_clean <- tm_map(corpus_clean, removeNumbers)
+corpus_clean <- tm_map(corpus_clean, removeWords, stopwords())
+corpus_clean <- tm_map(corpus_clean, removePunctuation)
+corpus_clean <- tm_map(corpus_clean, stripWhitespace)
+
+# 말뭉치 정리 확인
+inspect(sms_corpus[1:3])
+inspect(corpus_clean[1:3])
+
+# 문서-용어 희소 매트릭스 생성
+sms_dtm <- DocumentTermMatrix(corpus_clean)
+sms_dtm
+inspect(sms_dtm)
+
+# 훈련과 테스트 데이터셋 생성
+sms_raw_train <- sms_raw[1:4169, ]
+sms_raw_test  <- sms_raw[4170:5559, ]
+
+sms_dtm_train <- sms_dtm[1:4169, ]
+sms_dtm_test  <- sms_dtm[4170:5559, ]
+
+sms_corpus_train <- corpus_clean[1:4169]
+sms_corpus_test  <- corpus_clean[4170:5559]
+
+# 스팸 비율 확인
+prop.table(table(sms_raw_train$type))
+prop.table(table(sms_raw_test$type))
+
+# 단어 클라우드 시각화
+library(wordcloud)
+
+wordcloud(sms_corpus_train, min.freq = 30, random.order = FALSE)
+
+# 훈련 데이터를 스팸과 햄으로 구분
+spam <- subset(sms_raw_train, type == "spam")
+ham  <- subset(sms_raw_train, type == "ham")
+
+wordcloud(spam$text, max.words = 40, scale = c(3, 0.5))
+wordcloud(ham$text, max.words = 40, scale = c(3, 0.5))
+
+# 빈번한 단어에 대한 속성 지시자
+findFreqTerms(sms_dtm_train, 5)
+sms_dict <- findFreqTerms(sms_dtm_train, 5)
+sms_train <- DocumentTermMatrix(sms_corpus_train, list(dictionary = sms_dict))
+sms_test  <- DocumentTermMatrix(sms_corpus_test, list(dictionary = sms_dict))
+
+# 개수를 팩터로 변환
+convert_counts <- function(x) {
+  x <- ifelse(x > 0, 1, 0)
+  x <- factor(x, levels = c(0, 1), labels = c("No", "Yes"))
+}
+
+# apply() convert_counts()를 사용한 훈련/테스트 데이터 추출
+sms_train <- apply(sms_train, MARGIN = 2, convert_counts)
+sms_test  <- apply(sms_test, MARGIN = 2, convert_counts)
+
+## 2 단계 : 데이터로 모델 훈련 
+library(e1071)
+sms_classifier <- naiveBayes(sms_train, sms_raw_train$type)
+sms_classifier
+
+## 3 단계 : 모델 성능 평가 
+sms_test_pred <- predict(sms_classifier, sms_test)
+
+library(gmodels)
+CrossTable(sms_test_pred, sms_raw_test$type,
+           prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE)
+
+## 4 단계 : 모델 성능 향상 ----
+sms_classifier2 <- naiveBayes(sms_train, sms_raw_train$type, laplace = 1)
+sms_test_pred2 <- predict(sms_classifier2, sms_test)
+CrossTable(sms_test_pred2, sms_raw_test$type,
+           prop.chisq = FALSE, prop.t = FALSE, prop.r = FALSE,
+           dnn = c('predicted', 'actual'))
+
+
+# 정제작업
+
+
+# sms 데이터 프레임으로 sms 데이터 읽기
+sms_raw <- read.csv("c:/data/sms_test.csv", stringsAsFactors = FALSE)
+
+# sms 데이터 구조
+str(sms_raw)
+
+# 팩터로 spam/ham으로 변환
+#sms_raw$type <- factor(sms_raw$type)
+
+# 변수형 확인
+str(sms_raw$type)
+table(sms_raw$type)
+
+# 텍스트 마이닝(tm) 패키지를 사용하여 말뭉치 생성
+library(tm)
+sms_corpus <- Corpus(VectorSource(sms_raw$text))
+
+# sms 말뭉치 확인
+print(sms_corpus)
+inspect(sms_corpus[1:3])
+
+# multibyte 오류가 나므로 위의 작업을 해준다. 
+
+Sys.setlocale(category = "LC_ALL", locale = "us")
+
+# tm_map() 사용하여 말뭉치 정리
+corpus_clean <- tm_map(sms_corpus, tolower)
+corpus_clean <- tm_map(corpus_clean, removeNumbers)
+corpus_clean <- tm_map(corpus_clean, removeWords, stopwords())
+corpus_clean <- tm_map(corpus_clean, removePunctuation)
+corpus_clean <- tm_map(corpus_clean, stripWhitespace)
+
+# 말뭉치 정리 확인
+inspect(sms_corpus[1:3])
+inspect(corpus_clean[1:3])
+
+# 문서-용어 희소 매트릭스 생성
+sms_dtm <- DocumentTermMatrix(corpus_clean)
+sms_dtm
+inspect(sms_dtm)
+
+findFreqTerms(sms_dtm , 2)
+sms_dict <- findFreqTerms(sms_dtm , 2)
+
+sms_dtm <- DocumentTermMatrix(corpus_clean , list(dictionary = sms_dict))
+
+write.csv(cbind(data.frame(as.matrix(sms_dtm)),sms_raw$type),"c:/data/sms_dtm.csv")
+
+
+# factor 주의, 번호 주의 
+
+
+sns<-read.csv('c:/data/sms_spam.csv',header=T,stringsAsFactors = FALSE)
+sns$type<-factor(sns$type)
+
+sns_corp<-Corpus(VectorSource(sns$text))
+
+Sys.setlocale(category = "LC_ALL", locale = "us")
+
+corp1 <- tm_map(sns_corp, tolower)
+corp1 <- tm_map(corp1, removeNumbers)
+corp1 <- tm_map(corp1, removeWords, stopwords())
+corp1 <- tm_map(corp1, removePunctuation)
+corp1 <- tm_map(corp1, stripWhitespace)
+
+stopwords('en')
+
+
+dtm <- DocumentTermMatrix(corp1)
+tdm <- TermDocumentMatrix(corp1)
+inspect(dtm)
+inspect(freq_dtm1)
+freq_dtm<-findFreqTerms(dtm , 2)
+
+
+str(freq_dtm1)
+write.csv(cbind(data.frame(as.matrix(freq_dtm1)),sns$type),"c:/data/sms_dtm1.csv")
+
+ho<-read.csv('c:/data/sms_dtm1.csv',header=T)
+
+ho[,length(ho)]
+head(t(ho))
+head(ho[1:length(ho)-1])
+ho1<-naiveBayes(ho[1:length(ho)-1],ho[,length(ho)],laplace=0)
+ho2<-predict(ho1,ho[1:length(ho)-1])
+
+length(which(ho2!=sns$type))/length(ho2)
+
+sp<-sns[sns$type=='spam',2]
+p<-sns[sns$type=='ham',2]
+
+
+sp_corp<-Corpus(VectorSource(sp))
+p_corp<-Corpus(VectorSource(p))
+
+sp_corp1 <- tm_map(sp_corp, tolower)
+sp_corp1 <- tm_map(sp_corp1, removeNumbers)
+sp_corp1 <- tm_map(sp_corp1, removeWords, stopwords())
+sp_corp1 <- tm_map(sp_corp1, removePunctuation)
+sp_corp1 <- tm_map(sp_corp1, stripWhitespace)
+
+p_corp1 <- tm_map(p_corp, tolower)
+p_corp1 <- tm_map(p_corp1, removeNumbers)
+p_corp1 <- tm_map(p_corp1, removeWords, stopwords())
+p_corp1 <- tm_map(p_corp1, removePunctuation)
+p_corp1 <- tm_map(p_corp1, stripWhitespace)
+
+sp_dtm<-DocumentTermMatrix(sp_corp1)
+p_dtm<-DocumentTermMatrix(p_corp1)
+
+length(sp_freq)
+length(p_freq)
+total_w<-c(sp_freq,q_freq)
+
+m <- as.matrix(sp_dtm)
+freq <-sort(colSums(m),decreasing=T)
+freq
+
+m1<- as.matrix(p_dtm)
+freq1 <-sort(colSums(m1),decreasing=T)
+
+spm_word<-freq[!names(freq) %in% names(freq1)]
+p_word<-freq1[!names(freq1) %in% names(freq)]
+inter_word<-freq[names(freq) %in% names(freq1)]
+
+
+
+sp_freq<-spm_word[spm_word>=5]
+p_freq<-p_word[p_word>=5]
+inter_freq<-inter_word[inter_word>=5]
+
+total_word<-c(spm_word,p_word)
+total_w1<-c(p_freq,inter_freq)
+
+
+total_cn <- DocumentTermMatrix(corp1 , list(dictionary = names(total_word)))
+to_cn <- DocumentTermMatrix(corp1 , list(dictionary = names(total_w1)))
+write.csv(cbind(data.frame(as.matrix(total_cn)),sns$type),"c:/data/total_dtm.csv")
+write.csv(cbind(data.frame(as.matrix(to_cn)),sns$type),"c:/data/to_dtm.csv")
+
+A<-read.csv("c:/data/total_dtm.csv",header=T)
+A[,length(A)]
+str(A)
+aa<-as.data.frame(lapply(A, as.factor))
+str(aa)
+aa[,2:length(aa)-1]
+B<-naiveBayes(aa[,2:length(aa)-1],A[,length(A)],laplace=0)
+C<-predict(B,aa[,2:length(aa)-1])
+NROW(A)
+length(which(C==A[,length(A)]))/5559 # 77.4%
+
+
+
+AA<-read.csv("c:/data/to_dtm.csv",header=T)
+
+library(e1071)
+BB<-naiveBayes(bb[,2:length(bb)-1],AA[,length(AA)],laplace=0)
+CC<-predict(BB,bb[,2:length(bb)-1])
+
+length(which(CC==AA[,length(AA)]))/NROW(AA) #95.7%
+
+
